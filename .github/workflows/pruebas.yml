@@ -389,3 +389,7 @@ jobs:
       - name: Ejecutar experimento H2
         run: |
           python -m experimentos.experimento_H2
+
+      - name: Ejecutar experimento H3
+        run: |
+          python -m experimentos.experimento_H3
