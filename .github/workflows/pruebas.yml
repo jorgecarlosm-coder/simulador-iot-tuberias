@@ -381,3 +381,7 @@ jobs:
           print("--------------------------------")
           print("MODELO TERMICO FUNCIONA CORRECTAMENTE")
           PY
+
+      - name: Ejecutar experimento H1
+        run: |
+          python -m experimentos.experimento_H1
