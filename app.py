@@ -1,33 +1,23 @@
 
 import streamlit as st
-import numpy as np
 import pandas as pd
-import plotly.express as px
 
-# Configuracion de la pagina
+from modelos.modelo_hidraulico import modelo_hidraulico
+
 st.set_page_config(
-    page_title="Simulador IoT de Tuberias",
+    page_title="Simulador IoT de tuberias",
     page_icon="🔧",
     layout="wide"
 )
 
-# Titulo
-st.title("Simulador de fallas en tuberias mediante IoT")
+st.title("Simulador IoT de tuberias")
+st.write("Modelo hidraulico: calculo de variables del flujo.")
 
-st.write(
-    "Aplicacion para analizar el comportamiento hidraulico, "
-    "termico y la deteccion de fallas en tuberias."
-)
+st.sidebar.header("Parametros fisicos")
 
-st.divider()
-
-# Menu lateral
-st.sidebar.header("Configuracion fisica")
-
+# Geometria
 longitud = st.sidebar.number_input(
-    "Longitud de tuberia (m)",
-    min_value=1.0,
-    value=100.0
+    "Longitud (m)", min_value=1.0, value=100.0
 )
 
 diametro = st.sidebar.number_input(
@@ -37,58 +27,122 @@ diametro = st.sidebar.number_input(
     format="%.3f"
 )
 
+# Flujo
 caudal = st.sidebar.number_input(
-    "Caudal de entrada (m3/s)",
-    min_value=0.0001,
+    "Caudal (m3/s)",
+    min_value=0.000001,
     value=0.001,
-    format="%.4f"
+    format="%.6f"
 )
 
-temperatura = st.sidebar.number_input(
-    "Temperatura de entrada (°C)",
-    value=60.0
+presion_entrada = st.sidebar.number_input(
+    "Presion de entrada (Pa)",
+    min_value=1.0,
+    value=300000.0
 )
 
-temperatura_ambiente = st.sidebar.number_input(
-    "Temperatura ambiente (°C)",
-    value=20.0
+# Propiedades del agua
+rho = st.sidebar.number_input(
+    "Densidad (kg/m3)",
+    value=998.2
 )
 
-# Calculos iniciales
-area = np.pi * diametro**2 / 4
-velocidad = caudal / area
+mu = st.sidebar.number_input(
+    "Viscosidad dinamica (Pa s)",
+    value=0.001002,
+    format="%.6f"
+)
 
-# Resultados
-st.subheader("Variables fisicas iniciales")
+rugosidad = st.sidebar.number_input(
+    "Rugosidad (m)",
+    value=0.0000015,
+    format="%.8f"
+)
 
-col1, col2, col3 = st.columns(3)
+# Validacion
+if diametro <= 0 or caudal <= 0 or longitud <= 0:
+    st.error("Los valores deben ser positivos.")
 
-col1.metric("Area transversal", f"{area:.5f} m²")
-col2.metric("Velocidad", f"{velocidad:.3f} m/s")
-col3.metric("Temperatura de entrada", f"{temperatura:.1f} °C")
+elif rho <= 0 or mu <= 0 or rugosidad < 0:
+    st.error("Revisa las propiedades del fluido y la rugosidad.")
 
-st.divider()
+else:
 
-# Secciones del simulador
-tab1, tab2, tab3, tab4 = st.tabs([
-    "H1 - Ruido",
-    "H2 - Muestreo",
-    "H3 - Sensores",
-    "H4 - Tipos de fallas"
-])
+    resultados = modelo_hidraulico(
+        longitud=longitud,
+        diametro=diametro,
+        caudal=caudal,
+        presion_entrada=presion_entrada,
+        rho=rho,
+        mu=mu,
+        rugosidad=rugosidad
+    )
 
-with tab1:
-    st.subheader("Hipotesis H1")
-    st.write("Comparacion de metodos de deteccion frente al ruido.")
+    st.subheader("Resultados del modelo hidraulico")
 
-with tab2:
-    st.subheader("Hipotesis H2")
-    st.write("Analisis del intervalo de muestreo y retardo de deteccion.")
+    col1, col2, col3 = st.columns(3)
 
-with tab3:
-    st.subheader("Hipotesis H3")
-    st.write("Analisis de la cantidad de sensores y localizacion de fallas.")
+    col1.metric(
+        "Area transversal",
+        f"{resultados['area']:.6f} m2"
+    )
 
-with tab4:
-    st.subheader("Hipotesis H4")
-    st.write("Comparacion de fallas hidraulicas y termicas.")
+    col2.metric(
+        "Velocidad",
+        f"{resultados['velocidad']:.4f} m/s"
+    )
+
+    col3.metric(
+        "Numero de Reynolds",
+        f"{resultados['reynolds']:.2f}"
+    )
+
+    col4, col5, col6 = st.columns(3)
+
+    col4.metric(
+        "Regimen de flujo",
+        resultados["regimen"]
+    )
+
+    col5.metric(
+        "Factor de friccion",
+        f"{resultados['factor_friccion']:.6f}"
+    )
+
+    col6.metric(
+        "Perdida de presion",
+        f"{resultados['perdida_presion'] / 1000:.4f} kPa"
+    )
+
+    st.divider()
+
+    st.subheader("Presiones de la tuberia")
+
+    st.metric(
+        "Presion de salida",
+        f"{resultados['presion_salida']:.2f} Pa"
+    )
+
+    tabla = pd.DataFrame({
+        "Variable": [
+            "Area",
+            "Velocidad",
+            "Reynolds",
+            "Regimen",
+            "Factor de friccion",
+            "Perdida de presion",
+            "Presion de salida"
+        ],
+        "Resultado": [
+            resultados["area"],
+            resultados["velocidad"],
+            resultados["reynolds"],
+            resultados["regimen"],
+            resultados["factor_friccion"],
+            resultados["perdida_presion"],
+            resultados["presion_salida"]
+        ]
+    })
+
+    st.subheader("Tabla de resultados")
+    st.dataframe(tabla, use_container_width=True)
