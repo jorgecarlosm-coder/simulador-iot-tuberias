@@ -1,0 +1,391 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Simulador IoT de Tuberías</title>
+
+    <meta name="description"
+          content="Simulador de monitoreo hidráulico y térmico de tuberías mediante sensores IoT.">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- ENCABEZADO -->
+    <header class="encabezado">
+
+        <div class="logo">
+            <span class="logo-icono">IoT</span>
+
+            <div>
+                <h1>SIMULADOR IoT</h1>
+                <p>Monitoreo inteligente de tuberías</p>
+            </div>
+        </div>
+
+        <nav class="navegacion">
+            <a href="#inicio">Inicio</a>
+            <a href="#parametros">Parámetros</a>
+            <a href="#experimentos">Experimentos</a>
+            <a href="#arquitecturas">Redes IoT</a>
+            <a href="#resultados">Resultados</a>
+        </nav>
+
+    </header>
+
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="contenedor">
+
+        <!-- INICIO -->
+        <section id="inicio" class="presentacion">
+
+            <div>
+                <span class="etiqueta">SIMULACIÓN CIENTÍFICA</span>
+
+                <h2>
+                    Monitoreo hidráulico y térmico
+                    mediante redes de sensores IoT
+                </h2>
+
+                <p>
+                    Plataforma de simulación para analizar el
+                    comportamiento físico de tuberías, detectar
+                    fallas y evaluar diferentes arquitecturas
+                    de comunicación inalámbrica.
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- INDICADORES -->
+        <section class="seccion">
+
+            <h2>Estado del sistema</h2>
+
+            <div class="indicadores">
+
+                <article class="tarjeta-indicador">
+                    <p>Presión de salida</p>
+                    <h3 id="presion-salida">--</h3>
+                    <span>Pa</span>
+                </article>
+
+                <article class="tarjeta-indicador">
+                    <p>Caudal volumétrico</p>
+                    <h3 id="caudal">--</h3>
+                    <span>m³/s</span>
+                </article>
+
+                <article class="tarjeta-indicador">
+                    <p>Temperatura de salida</p>
+                    <h3 id="temperatura-salida">--</h3>
+                    <span>°C</span>
+                </article>
+
+                <article class="tarjeta-indicador">
+                    <p>Velocidad del fluido</p>
+                    <h3 id="velocidad">--</h3>
+                    <span>m/s</span>
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- PARAMETROS -->
+        <section id="parametros" class="seccion">
+
+            <h2>Configuración de la tubería</h2>
+
+            <p class="descripcion">
+                Modifica las condiciones físicas del sistema
+                para evaluar su comportamiento.
+            </p>
+
+            <div class="panel">
+
+                <div class="campo">
+                    <label for="longitud">
+                        Longitud de tubería (m)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="longitud"
+                        value="100"
+                        min="1"
+                        step="1">
+                </div>
+
+                <div class="campo">
+                    <label for="diametro">
+                        Diámetro (m)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="diametro"
+                        value="0.05"
+                        min="0.001"
+                        step="0.001">
+                </div>
+
+                <div class="campo">
+                    <label for="caudal-entrada">
+                        Caudal (m³/s)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="caudal-entrada"
+                        value="0.001"
+                        min="0.000001"
+                        step="0.0001">
+                </div>
+
+                <div class="campo">
+                    <label for="presion-entrada">
+                        Presión de entrada (Pa)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="presion-entrada"
+                        value="300000"
+                        min="1"
+                        step="1000">
+                </div>
+
+                <div class="campo">
+                    <label for="temperatura-entrada">
+                        Temperatura de entrada (°C)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="temperatura-entrada"
+                        value="60"
+                        step="1">
+                </div>
+
+                <div class="campo">
+                    <label for="temperatura-ambiente">
+                        Temperatura ambiente (°C)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="temperatura-ambiente"
+                        value="20"
+                        step="1">
+                </div>
+
+                <div class="campo">
+                    <label for="coeficiente-u">
+                        Coeficiente térmico U (W/m²K)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="coeficiente-u"
+                        value="5"
+                        min="0"
+                        step="0.5">
+                </div>
+
+                <div class="campo">
+                    <label for="cantidad-sensores">
+                        Cantidad de sensores
+                    </label>
+
+                    <select id="cantidad-sensores">
+                        <option value="1">1 sensor</option>
+                        <option value="2">2 sensores</option>
+                        <option value="3">3 sensores</option>
+                        <option value="5" selected>5 sensores</option>
+                        <option value="8">8 sensores</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <button id="btn-simular" class="boton-principal">
+                Calcular simulación
+            </button>
+
+            <p id="mensaje-simulacion" role="status"></p>
+
+        </section>
+
+
+        <!-- EXPERIMENTOS -->
+        <section id="experimentos" class="seccion">
+
+            <h2>Experimentos científicos</h2>
+
+            <p class="descripcion">
+                Consulta las cuatro hipótesis evaluadas
+                mediante simulaciones reproducibles.
+            </p>
+
+            <div class="experimentos-grid">
+
+                <article class="tarjeta-experimento">
+                    <h3>H1 - Ruido de sensores</h3>
+                    <p>
+                        Comparación de los métodos de detección
+                        ante diferentes niveles de ruido.
+                    </p>
+                    <button data-experimento="H1">
+                        Consultar H1
+                    </button>
+                </article>
+
+                <article class="tarjeta-experimento">
+                    <h3>H2 - Frecuencia de muestreo</h3>
+                    <p>
+                        Evaluación del retardo de detección
+                        según el intervalo de muestreo.
+                    </p>
+                    <button data-experimento="H2">
+                        Consultar H2
+                    </button>
+                </article>
+
+                <article class="tarjeta-experimento">
+                    <h3>H3 - Cantidad de sensores</h3>
+                    <p>
+                        Análisis del error de localización
+                        según la cantidad de sensores instalados.
+                    </p>
+                    <button data-experimento="H3">
+                        Consultar H3
+                    </button>
+                </article>
+
+                <article class="tarjeta-experimento">
+                    <h3>H4 - Tipos de fallas</h3>
+                    <p>
+                        Comparación de la detección de fallas
+                        hidráulicas y térmicas.
+                    </p>
+                    <button data-experimento="H4">
+                        Consultar H4
+                    </button>
+                </article>
+
+            </div>
+
+            <div id="detalle-experimento" class="panel-resultados">
+                <p>
+                    Selecciona un experimento para consultar
+                    sus resultados.
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- GRAFICOS -->
+        <section class="seccion">
+
+            <h2>Visualización de resultados</h2>
+
+            <div class="panel-grafico">
+
+                <h3>Gráfico comparativo</h3>
+
+                <div id="grafico-principal">
+                    <p>
+                        Los gráficos se incorporarán
+                        al conectar los resultados CSV.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ARQUITECTURAS -->
+        <section id="arquitecturas" class="seccion">
+
+            <h2>Arquitecturas de comunicación IoT</h2>
+
+            <div class="arquitecturas-grid">
+
+                <article class="tarjeta-arquitectura">
+                    <h3>LoRaWAN</h3>
+                    <p>Arquitectura en estrella.</p>
+                </article>
+
+                <article class="tarjeta-arquitectura">
+                    <h3>LoRa Mesh</h3>
+                    <p>Comunicación inalámbrica multisalto.</p>
+                </article>
+
+                <article class="tarjeta-arquitectura">
+                    <h3>Wi-Fi</h3>
+                    <p>Comunicación mediante red inalámbrica.</p>
+                </article>
+
+                <article class="tarjeta-arquitectura">
+                    <h3>Híbrida</h3>
+                    <p>Integración de LoRa y Wi-Fi.</p>
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- RESULTADOS -->
+        <section id="resultados" class="seccion">
+
+            <h2>Resultados de la simulación</h2>
+
+            <div class="panel">
+
+                <p id="estado-resultados">
+                    Los resultados se cargarán
+                    desde los archivos CSV.
+                </p>
+
+                <div id="tabla-resultados"></div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- PIE DE PAGINA -->
+    <footer class="pie-pagina">
+
+        <h3>SIMULADOR IoT DE TUBERÍAS</h3>
+
+        <p>
+            Proyecto académico de modelado hidráulico,
+            transferencia de calor y redes de sensores IoT.
+        </p>
+
+        <p>
+            Modelos físicos y experimentos reproducibles.
+        </p>
+
+    </footer>
+
+
+    <!-- ARCHIVO JAVASCRIPT -->
+    <script src="app.js"></script>
+
+</body>
+</html>
