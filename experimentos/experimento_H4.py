@@ -322,8 +322,7 @@ def ejecutar_experimento_H4():
             "precision",
             "recall",
             "f1",
-            "tasa_falsas_alarmas",
-            "accuracy"
+            "tasa_falsas_alarmas"
         ]
 
         resumen = {
@@ -385,11 +384,6 @@ def ejecutar_experimento_H4():
         print(
             f"Tasa de falsas alarmas: "
             f"{r['tasa_falsas_alarmas_media']:.4f}"
-        )
-
-        print(
-            f"Accuracy: "
-            f"{r['accuracy_media']:.4f}"
         )
 
     print("\nEXPERIMENTO H4 FINALIZADO CORRECTAMENTE.")
