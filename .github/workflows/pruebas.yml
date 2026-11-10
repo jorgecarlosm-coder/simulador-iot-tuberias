@@ -1,0 +1,54 @@
+
+name: Prueba del modelo hidraulico
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Obtener archivos
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar NumPy
+        run: pip install numpy
+
+      - name: Ejecutar prueba
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "modelos")
+
+          from modelo_hidraulico import modelo_hidraulico
+
+          r = modelo_hidraulico(
+              longitud=100,
+              diametro=0.05,
+              caudal=0.001,
+              presion_entrada=300000,
+              rho=998.2,
+              mu=0.001002,
+              rugosidad=0.0000015
+          )
+
+          for nombre, valor in r.items():
+              print(nombre, "=", valor)
+
+          assert r["area"] > 0
+          assert r["velocidad"] > 0
+          assert r["reynolds"] > 0
+          assert r["factor_friccion"] > 0
+          assert r["perdida_presion"] > 0
+          assert r["presion_salida"] > 0
+
+          print("MODELO HIDRAULICO FUNCIONA CORRECTAMENTE")
+          PY
