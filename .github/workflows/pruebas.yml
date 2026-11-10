@@ -195,3 +195,89 @@ jobs:
           print("\n--------------------------------")
           print("MODELO DE FALLAS FUNCIONA CORRECTAMENTE")
           PY
+
+      - name: Ejecutar modelo de deteccion
+        run: |
+          python - <<'PY'
+          import sys
+          import numpy as np
+
+          sys.path.insert(0, "modelos")
+
+          from deteccion import (
+              detectar_umbral,
+              detectar_residuos,
+              calcular_metricas,
+              calcular_retardo_deteccion
+          )
+
+          # Mediciones de ejemplo
+          referencias = np.array([20, 20, 20, 20, 20])
+          mediciones = np.array([20, 20.5, 20.2, 30, 31])
+
+          # Metodo de umbrales
+          alarmas_umbral = detectar_umbral(
+              mediciones,
+              referencias,
+              tolerancia=2
+          )
+
+          # Metodo basado en residuos
+          alarmas_residuos = detectar_residuos(
+              mediciones,
+              referencias,
+              sigma_residuo=0.5,
+              umbral_sigma=3
+          )
+
+          print("RESULTADOS DE DETECCION")
+          print("--------------------------------")
+
+          print("Alarmas por umbral:", alarmas_umbral)
+          print("Alarmas por residuos:", alarmas_residuos)
+
+          # Comprobacion de las alarmas
+          esperado = np.array([False, False, False, True, True])
+
+          assert np.array_equal(alarmas_umbral, esperado)
+          assert np.array_equal(alarmas_residuos, esperado)
+
+          # Etiquetas reales:
+          # 0 = normal
+          # 1 = falla
+          y_real = np.array([0, 0, 0, 1, 1])
+
+          metricas = calcular_metricas(
+              y_real,
+              alarmas_residuos
+          )
+
+          print("\nMETRICAS")
+          for nombre, valor in metricas.items():
+              print(nombre, "=", valor)
+
+          assert metricas["VP"] == 2
+          assert metricas["VN"] == 3
+          assert metricas["FP"] == 0
+          assert metricas["FN"] == 0
+          assert metricas["f1"] == 1.0
+
+          # Prueba del retardo
+          tiempos = np.array([0, 1, 2, 3, 4])
+
+          falla_real = np.array([0, 0, 1, 1, 1])
+          falla_detectada = np.array([0, 0, 0, 1, 1])
+
+          retardo = calcular_retardo_deteccion(
+              tiempos,
+              falla_real,
+              falla_detectada
+          )
+
+          print("\nRetardo de deteccion:", retardo, "segundos")
+
+          assert retardo == 1.0
+
+          print("--------------------------------")
+          print("MODELO DE DETECCION FUNCIONA CORRECTAMENTE")
+          PY
