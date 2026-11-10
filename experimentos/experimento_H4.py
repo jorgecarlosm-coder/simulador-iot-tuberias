@@ -62,15 +62,15 @@ def calcular_variables(parametros):
     )
 
     termica = modelo_termico(
-        Tin=parametros["Tin"],
-        Tamb=parametros["Tamb"],
-        L=parametros["longitud"],
-        D=parametros["diametro"],
-        U=parametros["U"],
-        Q=parametros["caudal"],
-        rho=parametros["rho"],
-        cp=parametros["cp"],
-        numero_puntos=101
+    temperatura_entrada=parametros["Tin"],
+    temperatura_ambiente=parametros["Tamb"],
+    longitud=parametros["longitud"],
+    diametro=parametros["diametro"],
+    coeficiente_U=parametros["U"],
+    caudal=parametros["caudal"],
+    rho=parametros["rho"],
+    cp=parametros["cp"],
+    numero_puntos=101
     )
 
     return {
