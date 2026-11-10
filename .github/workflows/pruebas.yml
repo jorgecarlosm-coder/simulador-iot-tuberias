@@ -397,3 +397,14 @@ jobs:
       - name: Ejecutar experimento H4
         run: |
           python -m experimentos.experimento_H4
+
+      - name: Consolidar resultados de experimentos
+        run: |
+          python -m experimentos.consolidar_resultados
+
+      - name: Guardar archivos CSV como artefactos
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-simulacion-iot
+          path: resultados/*.csv
+          if-no-files-found: error
