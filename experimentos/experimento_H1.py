@@ -103,7 +103,7 @@ def ejecutar_repeticion(nivel_ruido, semilla):
     rng = np.random.default_rng(semilla)
 
     # Configuracion del sensor de presion
-    sensor = configurar_sensor("pressure").copy()
+    sensor = configurar_sensor("presion").copy()
 
     # Modificar solamente la desviacion del ruido
     sensor["ruido_std"] *= NIVELES_RUIDO[nivel_ruido]
