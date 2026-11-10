@@ -335,3 +335,49 @@ jobs:
           print("\n--------------------------------")
           print("MODELO DE COMUNICACION IoT FUNCIONA CORRECTAMENTE")
           PY
+
+      - name: Ejecutar modelo termico
+        run: |
+          python - <<'PY'
+          import sys
+          import numpy as np
+
+          sys.path.insert(0, "modelos")
+
+          from modelo_termico import modelo_termico
+
+          resultados = modelo_termico(
+              temperatura_entrada=60,
+              temperatura_ambiente=20,
+              longitud=100,
+              diametro=0.05,
+              coeficiente_U=5,
+              caudal=0.001,
+              rho=998.2,
+              cp=4182,
+              numero_puntos=101
+          )
+
+          print("RESULTADOS DEL MODELO TERMICO")
+          print("--------------------------------")
+
+          print("Caudal masico:", resultados["caudal_masico"])
+          print("Temperatura inicial:", resultados["temperaturas"][0])
+          print("Temperatura a mitad de tuberia:", resultados["temperaturas"][50])
+          print("Temperatura final:", resultados["temperatura_salida"])
+          print("Variacion termica:", resultados["variacion_temperatura"])
+
+          # Comprobaciones
+          assert len(resultados["distancias"]) == 101
+          assert len(resultados["temperaturas"]) == 101
+
+          assert np.isclose(resultados["temperaturas"][0], 60)
+
+          assert resultados["temperatura_salida"] < 60
+          assert resultados["temperatura_salida"] > 20
+
+          assert np.all(np.diff(resultados["temperaturas"]) <= 0)
+
+          print("--------------------------------")
+          print("MODELO TERMICO FUNCIONA CORRECTAMENTE")
+          PY
