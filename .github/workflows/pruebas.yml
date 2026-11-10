@@ -52,3 +52,73 @@ jobs:
 
           print("MODELO HIDRAULICO FUNCIONA CORRECTAMENTE")
           PY
+
+      - name: Ejecutar modelo de sensores
+        run: |
+          python - <<'PY'
+          import sys
+          import numpy as np
+
+          sys.path.insert(0, "modelos")
+
+          from modelo_sensores import (
+              simular_sensor_mc,
+              configurar_sensor
+          )
+
+          # Configuracion del sensor
+          parametros = configurar_sensor("temperatura")
+
+          # Valores reales de temperatura
+          temperaturas = np.array([
+              20, 25, 30, 35, 40, 45, 50
+          ])
+
+          # Generador aleatorio reproducible
+          rng = np.random.default_rng(42)
+
+          # Simulacion
+          mediciones = simular_sensor_mc(
+              valor_real=temperaturas,
+              parametros=parametros,
+              dt=1,
+              rng=rng
+          )
+
+          print("RESULTADOS DEL SENSOR")
+          print("-----------------------------")
+
+          for real, medido in zip(temperaturas, mediciones):
+              print(
+                  f"Real: {real:.2f} °C | "
+                  f"Medido: {medido:.2f} °C"
+              )
+
+          # Comprobaciones
+          assert len(mediciones) == len(temperaturas)
+          assert np.all(np.isfinite(mediciones))
+
+          # Prueba determinista sin ruido ni sesgo
+          parametros_prueba = {
+              "bias": 0,
+              "ruido_std": 0,
+              "resolucion": 0.1,
+              "tau": 0
+          }
+
+          rng_prueba = np.random.default_rng(1)
+
+          resultado = simular_sensor_mc(
+              valor_real=np.array([20.13, 25.27, 30.34]),
+              parametros=parametros_prueba,
+              dt=1,
+              rng=rng_prueba
+          )
+
+          esperado = np.array([20.1, 25.3, 30.3])
+
+          assert np.allclose(resultado, esperado)
+
+          print("-----------------------------")
+          print("MODELO DE SENSORES FUNCIONA CORRECTAMENTE")
+          PY
