@@ -122,3 +122,76 @@ jobs:
           print("-----------------------------")
           print("MODELO DE SENSORES FUNCIONA CORRECTAMENTE")
           PY
+
+      - name: Ejecutar modelo de fallas
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "modelos")
+
+          from modelo_fallas import modelo_fallas
+
+          parametros = {
+              "longitud": 100,
+              "diametro": 0.05,
+              "caudal": 0.001,
+              "presion_entrada": 300000,
+              "rho": 998.2,
+              "mu": 0.001002,
+              "rugosidad": 0.0000015,
+              "coeficiente_U": 5,
+              "temperatura_entrada": 60,
+              "temperatura_ambiente": 20,
+              "cp": 4182
+          }
+
+          fallas = [
+              "normal",
+              "fuga",
+              "obstruccion",
+              "perdida_aislamiento",
+              "sobrecalentamiento"
+          ]
+
+          print("COMPROBACION DE FALLAS")
+          print("--------------------------------")
+
+          for falla in fallas:
+
+              resultado = modelo_fallas(
+                  tipo_falla=falla,
+                  parametros=parametros
+              )
+
+              modificados = resultado["parametros_modificados"]
+              detalles = resultado["detalles"]
+
+              print("\nFalla:", falla)
+              print("Descripcion:", detalles["descripcion"])
+
+              if falla == "fuga":
+                  assert modificados["caudal"] < parametros["caudal"]
+                  print("Caudal de salida:", modificados["caudal"])
+
+              elif falla == "obstruccion":
+                  assert modificados["diametro"] < parametros["diametro"]
+                  print("Diametro efectivo:", modificados["diametro"])
+
+              elif falla == "perdida_aislamiento":
+                  assert modificados["coeficiente_U"] > parametros["coeficiente_U"]
+                  print("Nuevo coeficiente U:", modificados["coeficiente_U"])
+
+              elif falla == "sobrecalentamiento":
+                  assert modificados["temperatura_entrada"] > parametros["temperatura_entrada"]
+                  print("Nueva temperatura:", modificados["temperatura_entrada"])
+
+              elif falla == "normal":
+                  assert modificados == parametros
+
+          # Comprobar que el modelo no altere los parametros originales
+          assert parametros["caudal"] == 0.001
+          assert parametros["diametro"] == 0.05
+
+          print("\n--------------------------------")
+          print("MODELO DE FALLAS FUNCIONA CORRECTAMENTE")
+          PY
