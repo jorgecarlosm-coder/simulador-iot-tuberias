@@ -281,3 +281,57 @@ jobs:
           print("--------------------------------")
           print("MODELO DE DETECCION FUNCIONA CORRECTAMENTE")
           PY
+
+      - name: Ejecutar modelo de comunicacion IoT
+        run: |
+          python - <<'PY'
+          import sys
+          import numpy as np
+
+          sys.path.insert(0, "modelos")
+
+          from comunicacion_iot import simular_comunicacion
+
+          arquitecturas = [
+              "lorawan",
+              "lora_mesh",
+              "wifi",
+              "hibrida"
+          ]
+
+          print("COMPARACION DE ARQUITECTURAS IoT")
+          print("--------------------------------")
+
+          for arquitectura in arquitecturas:
+
+              rng = np.random.default_rng(42)
+
+              resultado = simular_comunicacion(
+                  arquitectura=arquitectura,
+                  distancia_km=2,
+                  cantidad_paquetes=1000,
+                  intervalo_transmision_s=60,
+                  bateria_mAh=5000,
+                  voltaje=3.7,
+                  rng=rng
+              )
+
+              print("\nArquitectura:", resultado["arquitectura"])
+              print("PDR estimado:", resultado["pdr_estimado"])
+              print("PDR observado:", resultado["pdr_observado"])
+              print("Paquetes entregados:", resultado["paquetes_entregados"])
+              print("Paquetes perdidos:", resultado["paquetes_perdidos"])
+              print("Latencia:", resultado["latencia_ms"], "ms")
+              print("Saltos:", resultado["saltos"])
+              print("Corriente promedio:", resultado["corriente_promedio_mA"], "mA")
+              print("Autonomia:", resultado["autonomia_dias"], "dias")
+
+              assert 0 <= resultado["pdr_estimado"] <= 1
+              assert 0 <= resultado["pdr_observado"] <= 1
+              assert resultado["paquetes_entregados"] + resultado["paquetes_perdidos"] == 1000
+              assert resultado["latencia_ms"] > 0
+              assert resultado["autonomia_dias"] > 0
+
+          print("\n--------------------------------")
+          print("MODELO DE COMUNICACION IoT FUNCIONA CORRECTAMENTE")
+          PY
