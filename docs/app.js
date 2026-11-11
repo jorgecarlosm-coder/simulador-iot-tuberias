@@ -577,22 +577,155 @@ document.addEventListener(
             ejecutarSimulacion
         );
 
-        document.querySelectorAll(
-            "[data-experimento]"
-        ).forEach(boton => {
 
-            boton.addEventListener(
-                "click",
-                function () {
+        function interpretarCSV(texto) {
+            const filas = [];
+            let fila = [];
+            let campo = "";
+            let dentroComillas = false;
 
-                    consultarExperimento(
-                        this.dataset.experimento
-                    );
+            for (let i = 0; i < texto.length; i++) {
+                const caracter = texto[i];
 
+                if (caracter === '"') {
+                    if (dentroComillas && texto[i + 1] === '"') {
+                        campo += '"';
+                        i++;
+                    } else {
+                        dentroComillas = !dentroComillas;
+                    }
+                } else if (caracter === "," && !dentroComillas) {
+                    fila.push(campo);
+                    campo = "";
+                } else if (
+                    (caracter === "\n" || caracter === "\r") &&
+                    !dentroComillas
+                ) {
+                    if (caracter === "\r" && texto[i + 1] === "\n") {
+                        i++;
+                    }
+
+                    fila.push(campo);
+
+                    if (fila.some(valor => valor.trim() !== "")) {
+                        filas.push(fila);
+                    }
+
+                    fila = [];
+                    campo = "";
+                } else {
+                    campo += caracter;
                 }
-            );
+            }
 
+            fila.push(campo);
+
+            if (fila.some(valor => valor.trim() !== "")) {
+                filas.push(fila);
+            }
+
+            if (filas.length < 2) {
+                return { encabezados: [], registros: [] };
+            }
+
+            const encabezados = filas[0].map(valor => valor.trim());
+
+            const registros = filas.slice(1).map(valores => {
+                const registro = {};
+
+                encabezados.forEach((encabezado, indice) => {
+                    registro[encabezado] = valores[indice] ?? "";
+                });
+
+                return registro;
+            });
+
+            return { encabezados, registros };
+        }
+
+        async function cargarResultadosExperimento(codigo) {
+            const contenedor = document.getElementById("detalle-experimento");
+
+            contenedor.innerHTML = `<p>Cargando resultados de ${codigo}...</p>`;
+
+            try {
+                const respuesta = await fetch(
+                    `data/resultados_${codigo}.csv`,
+                    { cache: "no-store" }
+                );
+
+                if (!respuesta.ok) {
+                    throw new Error(`Error HTTP ${respuesta.status}`);
+                }
+
+                const textoCSV = await respuesta.text();
+                const datos = interpretarCSV(textoCSV);
+
+                if (datos.registros.length === 0) {
+                    throw new Error("El CSV no contiene registros.");
+                }
+
+                contenedor.innerHTML = "";
+
+                const titulo = document.createElement("h3");
+                titulo.textContent = `Resultados del experimento ${codigo}`;
+                contenedor.appendChild(titulo);
+
+                const cantidad = document.createElement("p");
+                cantidad.textContent =
+                    `Registros encontrados: ${datos.registros.length}`;
+                contenedor.appendChild(cantidad);
+
+                const tabla = document.createElement("table");
+                tabla.className = "tabla-datos";
+
+                const encabezado = document.createElement("thead");
+                const filaEncabezado = document.createElement("tr");
+
+                datos.encabezados.forEach(nombre => {
+                    const th = document.createElement("th");
+                    th.textContent = nombre;
+                    filaEncabezado.appendChild(th);
+                });
+
+                encabezado.appendChild(filaEncabezado);
+                tabla.appendChild(encabezado);
+
+                const cuerpo = document.createElement("tbody");
+
+                datos.registros.forEach(registro => {
+                    const tr = document.createElement("tr");
+
+                    datos.encabezados.forEach(nombre => {
+                        const td = document.createElement("td");
+                        td.textContent = registro[nombre] ?? "";
+                        tr.appendChild(td);
+                    });
+
+                    cuerpo.appendChild(tr);
+                });
+
+                tabla.appendChild(cuerpo);
+                contenedor.appendChild(tabla);
+
+            } catch (error) {
+                contenedor.innerHTML = "";
+
+                const mensaje = document.createElement("p");
+                mensaje.textContent =
+                    `Error al cargar ${codigo}: ${error.message}`;
+
+                contenedor.appendChild(mensaje);
+                console.error(error);
+            }
+        }
+
+        document.querySelectorAll("[data-experimento]").forEach(boton => {
+            boton.addEventListener("click", () => {
+                cargarResultadosExperimento(boton.dataset.experimento);
+            });
         });
+
 
         // Calcular automáticamente al abrir la página.
 
