@@ -12,7 +12,7 @@ from experimentos.experimento_H4 import ejecutar_experimento_H4
 # 1. CREAR CARPETA DE RESULTADOS
 # --------------------------------------------------
 
-CARPETA_RESULTADOS = "resultados"
+CARPETA_RESULTADOS = "docs/data"
 
 os.makedirs(
     CARPETA_RESULTADOS,
