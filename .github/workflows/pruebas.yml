@@ -1,6 +1,7 @@
 
 name: Prueba del modelo hidraulico
-
+permissions:
+  contents: write
 on:
   push:
     branches: [main]
@@ -401,10 +402,19 @@ jobs:
       - name: Consolidar resultados de experimentos
         run: |
           python -m experimentos.consolidar_resultados
-
+          
+      - name: Actualizar resultados en GitHub
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/*.csv
+          git diff --cached --quiet || (
+            git commit -m "Actualizar resultados de simulacion [skip ci]"
+            git push
+          )
       - name: Guardar archivos CSV como artefactos
         uses: actions/upload-artifact@v4
         with:
           name: resultados-simulacion-iot
-          path: resultados/*.csv
+          path: docs/data/*.csv
           if-no-files-found: error
