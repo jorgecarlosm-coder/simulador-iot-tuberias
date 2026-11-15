@@ -292,6 +292,227 @@
 
         </section>
 
+<!-- TUBERIA 2D DINAMICA -->
+<section id="visualizacion-tuberia" class="seccion">
+
+    <h2>Visualización 2D de la tubería</h2>
+
+    <div class="panel-grafico">
+
+        <h3>Modelo físico e instrumentación IoT</h3>
+
+        <div class="tuberia-contenedor">
+
+            <svg id="tuberia-svg"
+                 viewBox="0 0 900 330"
+                 xmlns="http://www.w3.org/2000/svg"
+                 role="img"
+                 aria-label="Esquema 2D de una tubería con sensores IoT">
+
+                <defs>
+                    <linearGradient id="agua-gradiente"
+                                    x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#2563eb"/>
+                        <stop offset="100%" stop-color="#0d9488"/>
+                    </linearGradient>
+
+                    <marker id="flecha-flujo"
+                            markerWidth="10"
+                            markerHeight="10"
+                            refX="8"
+                            refY="3"
+                            orient="auto">
+                        <path d="M0,0 L0,6 L9,3 z"
+                              fill="#ffffff"/>
+                    </marker>
+                </defs>
+
+                <!-- TITULO -->
+                <text x="450" y="28"
+                      text-anchor="middle"
+                      fill="currentColor"
+                      font-size="19"
+                      font-weight="bold">
+                    Sistema de transporte de agua
+                </text>
+
+                <!-- ENTRADA -->
+                <text x="35" y="80"
+                      fill="currentColor"
+                      font-size="15"
+                      font-weight="bold">
+                    ENTRADA
+                </text>
+
+                <text x="35" y="103"
+                      fill="currentColor"
+                      font-size="13">
+                    P: <tspan id="tuberia-pin">300.00 kPa</tspan>
+                </text>
+
+                <text x="35" y="124"
+                      fill="currentColor"
+                      font-size="13">
+                    T: <tspan id="tuberia-tin">60.00 °C</tspan>
+                </text>
+
+                <!-- CUERPO DE TUBERIA -->
+                <rect x="35" y="145"
+                      width="830"
+                      height="85"
+                      rx="18"
+                      fill="#64748b"
+                      opacity="0.45"
+                      stroke="#94a3b8"
+                      stroke-width="4"/>
+
+                <!-- AGUA -->
+                <rect x="42" y="153"
+                      width="816"
+                      height="69"
+                      rx="12"
+                      fill="url(#agua-gradiente)"/>
+
+                <!-- FLECHAS DEL FLUJO -->
+                <path d="M110 187 H220
+                         M270 187 H380
+                         M430 187 H540
+                         M590 187 H700"
+                      fill="none"
+                      stroke="white"
+                      stroke-width="4"
+                      marker-end="url(#flecha-flujo)"/>
+
+                <!-- SENSORES -->
+                <g id="sensores-tuberia">
+
+                    <g id="sensor-1">
+                        <line x1="240" y1="145"
+                              x2="240" y2="105"
+                              stroke="#facc15" stroke-width="3"/>
+                        <circle cx="240" cy="187" r="10"
+                                fill="#facc15"
+                                stroke="#713f12"
+                                stroke-width="3"/>
+                        <text x="240" y="91"
+                              fill="currentColor"
+                              font-size="13"
+                              text-anchor="middle">S1</text>
+                    </g>
+
+                    <g id="sensor-2">
+                        <line x1="450" y1="145"
+                              x2="450" y2="105"
+                              stroke="#facc15" stroke-width="3"/>
+                        <circle cx="450" cy="187" r="10"
+                                fill="#facc15"
+                                stroke="#713f12"
+                                stroke-width="3"/>
+                        <text x="450" y="91"
+                              fill="currentColor"
+                              font-size="13"
+                              text-anchor="middle">S2</text>
+                    </g>
+
+                    <g id="sensor-3">
+                        <line x1="660" y1="145"
+                              x2="660" y2="105"
+                              stroke="#facc15" stroke-width="3"/>
+                        <circle cx="660" cy="187" r="10"
+                                fill="#facc15"
+                                stroke="#713f12"
+                                stroke-width="3"/>
+                        <text x="660" y="91"
+                              fill="currentColor"
+                              font-size="13"
+                              text-anchor="middle">S3</text>
+                    </g>
+
+                </g>
+
+                <!-- SALIDA -->
+                <text x="750" y="80"
+                      fill="currentColor"
+                      font-size="15"
+                      font-weight="bold">
+                    SALIDA
+                </text>
+
+                <text x="750" y="103"
+                      fill="currentColor"
+                      font-size="13">
+                    P: <tspan id="tuberia-pout">293.68 kPa</tspan>
+                </text>
+
+                <text x="750" y="124"
+                      fill="currentColor"
+                      font-size="13">
+                    T: <tspan id="tuberia-tout">59.25 °C</tspan>
+                </text>
+
+                <!-- DIMENSIONES -->
+                <line x1="45" y1="265"
+                      x2="855" y2="265"
+                      stroke="currentColor"
+                      stroke-width="1.5"/>
+
+                <path d="M45 258 V272 M855 258 V272"
+                      stroke="currentColor"
+                      stroke-width="1.5"/>
+
+                <text x="450" y="288"
+                      fill="currentColor"
+                      text-anchor="middle"
+                      font-size="14">
+                    Longitud: <tspan id="tuberia-longitud">100 m</tspan>
+                </text>
+
+                <text x="450" y="312"
+                      fill="currentColor"
+                      text-anchor="middle"
+                      font-size="14">
+                    Diámetro: <tspan id="tuberia-diametro">0.05 m</tspan>
+                </text>
+
+            </svg>
+
+        </div>
+
+        <!-- PARAMETROS EN TIEMPO REAL -->
+        <div class="tuberia-indicadores">
+
+            <div class="tarjeta">
+                <span>Velocidad</span>
+                <strong id="tuberia-velocidad">0.5093 m/s</strong>
+            </div>
+
+            <div class="tarjeta">
+                <span>Caudal</span>
+                <strong id="tuberia-caudal">0.001 m³/s</strong>
+            </div>
+
+            <div class="tarjeta">
+                <span>Reynolds</span>
+                <strong id="tuberia-reynolds">25368.22</strong>
+            </div>
+
+            <div class="tarjeta">
+                <span>Régimen</span>
+                <strong id="tuberia-regimen">Turbulento</strong>
+            </div>
+
+        </div>
+
+        <p class="descripcion-tuberia">
+            Los parámetros de la tubería se actualizarán automáticamente
+            al ejecutar una nueva simulación.
+        </p>
+
+    </div>
+
+</section>
+<!-- FIN TUBERIA 2D DINAMICA -->
+
 
         <!-- GRAFICOS -->
         <section class="seccion">
