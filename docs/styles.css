@@ -529,6 +529,125 @@ button {
         grid-template-columns: 1fr;
     }
 
+/* =========================================
+   TUBERIA 2D DINAMICA
+========================================= */
+
+#visualizacion-tuberia {
+    width: 100%;
+}
+
+#visualizacion-tuberia .panel-grafico {
+    width: 100%;
+    padding: 24px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.tuberia-contenedor {
+    width: 100%;
+    overflow-x: auto;
+    background: #111c2e;
+    border: 1px solid #334155;
+    border-radius: 14px;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+#tuberia-svg {
+    display: block;
+    width: 100%;
+    min-width: 620px;
+    height: auto;
+    overflow: visible;
+}
+
+/* Indicadores de la tuberia */
+
+.tuberia-indicadores {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.tuberia-indicadores .tarjeta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px;
+    background: #192a40;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    min-width: 0;
+}
+
+.tuberia-indicadores .tarjeta span {
+    color: #a9bdd5;
+    font-size: 14px;
+}
+
+.tuberia-indicadores .tarjeta strong {
+    color: #38bdf8;
+    font-size: 20px;
+    overflow-wrap: anywhere;
+}
+
+/* Descripcion */
+
+.descripcion-tuberia {
+    margin-top: 18px;
+    color: #a9bdd5;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Animacion de flujo */
+
+#tuberia-svg path[marker-end="url(#flecha-flujo)"] {
+    stroke-dasharray: 12 8;
+    animation: movimiento-agua 1.5s linear infinite;
+}
+
+@keyframes movimiento-agua {
+    from {
+        stroke-dashoffset: 0;
+    }
+
+    to {
+        stroke-dashoffset: -40;
+    }
+}
+
+/* Adaptacion para tablets */
+
+@media (max-width: 900px) {
+    .tuberia-indicadores {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Adaptacion para celulares */
+
+@media (max-width: 520px) {
+    #visualizacion-tuberia .panel-grafico {
+        padding: 12px;
+    }
+
+    .tuberia-indicadores {
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+    }
+
+    .tuberia-indicadores .tarjeta {
+        padding: 12px;
+    }
+
+    .tuberia-indicadores .tarjeta strong {
+        font-size: 16px;
+    }
+}
+
     .seccion > h2 {
         font-size: 23px;
     }
