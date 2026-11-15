@@ -347,6 +347,8 @@ function mostrarResultados(hidraulica, termica) {
         <br><br>
         Reynolds: ${hidraulica.reynolds.toFixed(2)}
         <br>
+        Velocidad: ${hidraulica.velocidad.toFixed(4)} m/s
+        <br>
         Régimen: ${hidraulica.regimen}
         <br>
         Factor de fricción: ${hidraulica.factor.toFixed(6)}
