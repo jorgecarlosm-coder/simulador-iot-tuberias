@@ -514,6 +514,11 @@ ${hidraulica.longitudDespuesFuga.toFixed(2)} m
 Presión en el punto de fuga:
 ${(hidraulica.presionFuga / 1000).toFixed(2)} kPa
 <br>
+Temperatura en el punto de fuga:
+${hidraulica.caudalFuga > 0
+    ? termica.temperaturaEnFuga.toFixed(2) + " °C"
+    : "No aplica"}
+<br>
 Pérdida de presión antes de la fuga:
 ${hidraulica.perdidaAntesFuga.toFixed(2)} Pa
 <br>
