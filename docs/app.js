@@ -1032,7 +1032,9 @@ document.addEventListener(
         });
 
 // Dibujar sensores dinámicamente en la tubería 2D.
+
 function dibujarSensoresTuberia(cantidad) {
+
     const grupo = document.getElementById("sensores-tuberia");
 
     if (!grupo) return;
@@ -1041,10 +1043,14 @@ function dibujarSensoresTuberia(cantidad) {
 
     cantidad = Math.max(1, Math.min(20, Number(cantidad) || 1));
 
+    const longitud = obtenerNumero("longitud");
     const espacio = 816 / (cantidad + 1);
 
     for (let i = 0; i < cantidad; i++) {
+
         const x = 42 + espacio * (i + 1);
+
+        const distancia = longitud * (i + 1) / (cantidad + 1);
 
         const sensor = document.createElementNS(
             "http://www.w3.org/2000/svg",
@@ -1052,6 +1058,8 @@ function dibujarSensoresTuberia(cantidad) {
         );
 
         sensor.setAttribute("id", `sensor-${i + 1}`);
+
+        sensor.setAttribute("data-distancia", distancia);
 
         const soporte = document.createElementNS(
             "http://www.w3.org/2000/svg",
@@ -1087,6 +1095,7 @@ function dibujarSensoresTuberia(cantidad) {
         etiqueta.setAttribute("text-anchor", "middle");
         etiqueta.setAttribute("fill", "#e2e8f0");
         etiqueta.setAttribute("font-size", "12");
+
         etiqueta.textContent = `S${i + 1}`;
 
         sensor.appendChild(soporte);
@@ -1096,6 +1105,7 @@ function dibujarSensoresTuberia(cantidad) {
         grupo.appendChild(sensor);
     }
 }
+
 // Actualizar sensores cuando cambie la cantidad seleccionada.
 const selectorSensores = document.getElementById("cantidad-sensores");
 
