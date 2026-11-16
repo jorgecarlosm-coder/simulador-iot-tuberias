@@ -475,6 +475,22 @@ Caudal de entrada: ${hidraulica.caudalEntrada.toExponential(3)} m³/s
 Caudal perdido: ${hidraulica.caudalFuga.toExponential(3)} m³/s
 <br>
 Caudal de salida: ${hidraulica.caudalSalida.toExponential(3)} m³/s
+
+<br>
+Longitud antes de la fuga:
+${hidraulica.longitudAntesFuga.toFixed(2)} m
+<br>
+Longitud después de la fuga:
+${hidraulica.longitudDespuesFuga.toFixed(2)} m
+<br>
+Presión en el punto de fuga:
+${(hidraulica.presionFuga / 1000).toFixed(2)} kPa
+<br>
+Pérdida de presión antes de la fuga:
+${hidraulica.perdidaAntesFuga.toFixed(2)} Pa
+<br>
+Pérdida de presión después de la fuga:
+${hidraulica.perdidaDespuesFuga.toFixed(2)} Pa
     `;
 
     // ACTUALIZAR VISUALIZACION 2D DE LA TUBERIA
