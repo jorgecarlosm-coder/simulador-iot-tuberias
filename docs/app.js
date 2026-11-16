@@ -272,13 +272,6 @@ function modeloTermico(parametros) {
 
 function leerParametros() {
 
-    const fugaActiva =
-        document.getElementById("fuga-activa")?.checked ?? false;
-
-    const porcentajeFuga = fugaActiva
-        ? obtenerNumero("porcentaje-fuga")
-        : 0;
-
     const p = {
 
         L: obtenerNumero("longitud"),
@@ -295,10 +288,6 @@ function leerParametros() {
 
         U: obtenerNumero("coeficiente-u"),
 
-        fugaActiva: fugaActiva,
-
-        porcentajeFuga: porcentajeFuga
-
     };
 
     if (
@@ -314,16 +303,7 @@ function leerParametros() {
             "Los parámetros deben tener valores físicos válidos."
         );
     }
-
-    if (
-        p.fugaActiva &&
-        (p.porcentajeFuga < 1 || p.porcentajeFuga > 50)
-    ) {
-        throw new Error(
-            "El porcentaje de fuga debe estar entre 1 % y 50 %."
-        );
-    }
-
+   
     if (p.D > 1) {
         throw new Error(
             "El diámetro debe expresarse en metros."
