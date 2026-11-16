@@ -503,7 +503,12 @@ Caudal de entrada: ${hidraulica.caudalEntrada.toExponential(3)} m³/s
 Caudal perdido: ${hidraulica.caudalFuga.toExponential(3)} m³/s
 <br>
 Caudal de salida: ${hidraulica.caudalSalida.toExponential(3)} m³/s
-
+<br>
+Posición de la fuga:
+${hidraulica.caudalFuga > 0
+    ? hidraulica.posicionFuga + " % (" +
+      hidraulica.longitudAntesFuga.toFixed(2) + " m desde la entrada)"
+    : "No aplica"}
 <br>
 Longitud antes de la fuga:
 ${hidraulica.longitudAntesFuga.toFixed(2)} m
