@@ -213,7 +213,31 @@
                         <option value="8">8 sensores</option>
                     </select>
                 </div>
+<!-- CONFIGURACION DE FUGAS -->
 
+<div class="campo">
+    <label for="fuga-activa">
+        Activar fuga
+    </label>
+
+    <input
+        type="checkbox"
+        id="fuga-activa">
+</div>
+
+<div class="campo">
+    <label for="porcentaje-fuga">
+        Porcentaje de fuga (%)
+    </label>
+
+    <input
+        type="number"
+        id="porcentaje-fuga"
+        value="10"
+        min="1"
+        max="50"
+        step="1">
+</div>
             </div>
 
             <button id="btn-simular" class="boton-principal">
