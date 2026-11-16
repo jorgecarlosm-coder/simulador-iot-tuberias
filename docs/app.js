@@ -360,6 +360,51 @@ function mostrarResultados(hidraulica, termica) {
         Temperatura de salida: ${termica.temperaturaSalida.toFixed(4)} °C
     `;
 
+    // ACTUALIZAR VISUALIZACION 2D DE LA TUBERIA
+
+    const longitudTuberia = obtenerNumero("longitud");
+    const diametroTuberia = obtenerNumero("diametro");
+    const presionEntradaTuberia = obtenerNumero("presion-entrada");
+    const temperaturaEntradaTuberia = obtenerNumero("temperatura-entrada");
+
+    const presionSalidaTuberia =
+        presionEntradaTuberia - hidraulica.perdida;
+
+    // Entrada
+    document.getElementById("tuberia-pin").textContent =
+        (presionEntradaTuberia / 1000).toFixed(2) + " kPa";
+
+    document.getElementById("tuberia-tin").textContent =
+        temperaturaEntradaTuberia.toFixed(2) + " °C";
+
+    // Salida
+    document.getElementById("tuberia-pout").textContent =
+        (presionSalidaTuberia / 1000).toFixed(2) + " kPa";
+
+    document.getElementById("tuberia-tout").textContent =
+        termica.temperaturaSalida.toFixed(2) + " °C";
+
+    // Dimensiones
+    document.getElementById("tuberia-longitud").textContent =
+        longitudTuberia + " m";
+
+    document.getElementById("tuberia-diametro").textContent =
+        diametroTuberia + " m";
+
+    // Indicadores hidráulicos
+    document.getElementById("tuberia-velocidad").textContent =
+        hidraulica.velocidad.toFixed(4) + " m/s";
+
+    document.getElementById("tuberia-caudal").textContent =
+        obtenerNumero("caudal-entrada").toFixed(4) + " m³/s";
+
+    document.getElementById("tuberia-reynolds").textContent =
+        hidraulica.reynolds.toFixed(2);
+
+    document.getElementById("tuberia-regimen").textContent =
+        hidraulica.regimen;
+
+
     dibujarPerfilTermico(termica.perfil);
 }
 
