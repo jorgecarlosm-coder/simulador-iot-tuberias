@@ -560,12 +560,27 @@ ${hidraulica.perdidaDespuesFuga.toFixed(2)} Pa
 const fugaVisual = document.getElementById("fuga-visualizacion");
 
 if (fugaVisual) {
-    fugaVisual.style.display =
-        hidraulica.caudalFuga > 0 ? "inline" : "none";
-}
 
-}
+    if (hidraulica.caudalFuga > 0) {
 
+        fugaVisual.style.display = "inline";
+
+        const posicionX =
+            42 + (816 * hidraulica.posicionFuga / 100);
+
+        const desplazamientoX = posicionX - 516;
+
+        fugaVisual.setAttribute(
+            "transform",
+            `translate(${desplazamientoX}, 0)`
+        );
+
+    } else {
+
+        fugaVisual.style.display = "none";
+
+    }
+}
 
 /* =========================================
    12. GRAFICO DEL PERFIL TERMICO
