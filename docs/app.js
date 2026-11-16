@@ -391,6 +391,18 @@ function mostrarResultados(hidraulica, termica) {
         Caudal másico: ${termica.caudalMasico.toFixed(4)} kg/s
         <br>
         Temperatura de salida: ${termica.temperaturaSalida.toFixed(4)} °C
+        <br><br>
+<strong>ANÁLISIS DE FUGA:</strong>
+<br>
+Estado de fuga: ${hidraulica.caudalFuga > 0 ? "Fuga activa" : "Sin fuga"}
+<br>
+Porcentaje de fuga: ${hidraulica.porcentajeFuga} %
+<br>
+Caudal de entrada: ${hidraulica.caudalEntrada.toExponential(3)} m³/s
+<br>
+Caudal perdido: ${hidraulica.caudalFuga.toExponential(3)} m³/s
+<br>
+Caudal de salida: ${hidraulica.caudalSalida.toExponential(3)} m³/s
     `;
 
     // ACTUALIZAR VISUALIZACION 2D DE LA TUBERIA
