@@ -135,13 +135,31 @@ function modeloHidraulico(parametros) {
         L,
         D,
         Q,
-        Pin
+        Pin,
+        fugaActiva,
+        porcentajeFuga
     } = parametros;
 
+    // Calculo del caudal perdido
+    let caudalFuga = 0;
+
+    if (fugaActiva) {
+        caudalFuga = Q * (porcentajeFuga / 100);
+    }
+
+    // Caudal que continua por la tuberia
+    const caudalSalida = Q - caudalFuga;
+
+    // Caudal promedio para el calculo hidraulico
+    const caudalPromedio = (Q + caudalSalida) / 2;
+
+    // Area transversal
     const A = calcularArea(D);
 
-    const v = calcularVelocidad(Q, A);
+    // Velocidad promedio
+    const v = calcularVelocidad(caudalPromedio, A);
 
+    // Numero de Reynolds
     const Re = calcularReynolds(
         AGUA.rho,
         v,
@@ -149,12 +167,14 @@ function modeloHidraulico(parametros) {
         AGUA.mu
     );
 
+    // Factor de friccion
     const f = calcularFactorFriccion(
         Re,
         AGUA.rugosidad,
         D
     );
 
+    // Perdida de presion
     const perdida = calcularPerdidaPresion(
         f,
         L,
@@ -163,21 +183,22 @@ function modeloHidraulico(parametros) {
         v
     );
 
+    // Presion de salida
     const Pout = Pin - perdida;
 
     if (Pout <= 0) {
-
         throw new Error(
-            "La presión de salida es negativa o nula. Revisa los parámetros."
+            "La presion de salida es negativa o nula. Revisa los parametros."
         );
     }
 
+    // Regimen del flujo
     let regimen;
 
     if (Re < 2300) {
         regimen = "Laminar";
     } else if (Re <= 4000) {
-        regimen = "Transición";
+        regimen = "Transicion";
     } else {
         regimen = "Turbulento";
     }
@@ -189,10 +210,15 @@ function modeloHidraulico(parametros) {
         factor: f,
         perdida: perdida,
         presionSalida: Pout,
-        regimen: regimen
+        regimen: regimen,
+
+        caudalEntrada: Q,
+        caudalFuga: caudalFuga,
+        caudalSalida: caudalSalida,
+        caudalPromedio: caudalPromedio,
+        porcentajeFuga: porcentajeFuga || 0
     };
 }
-
 
 /* =========================================
    9. MODELO TERMICO
