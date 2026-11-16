@@ -521,9 +521,14 @@ function actualizarTemperaturasSensores(datos) {
         return;
     }
 
-    const sensores = grupo.querySelectorAll("g[id^='sensor-']");
+   const sensores = grupo.querySelectorAll("g[id^='sensor-']");
 
-    const longitud = datos[datos.length - 1].distancia;
+// Eliminar las temperaturas mostradas anteriormente.
+grupo.querySelectorAll(".temperatura-sensor").forEach(etiqueta => {
+    etiqueta.remove();
+});
+
+const longitud = datos[datos.length - 1].distancia;
 
     sensores.forEach((sensor, indice) => {
 
@@ -547,7 +552,7 @@ function actualizarTemperaturasSensores(datos) {
             "http://www.w3.org/2000/svg",
             "text"
         );
-
+       etiqueta.classList.add("temperatura-sensor");
         etiqueta.setAttribute("x", sensor.querySelector("circle").getAttribute("cx"));
         etiqueta.setAttribute("y", 215);
         etiqueta.setAttribute("text-anchor", "middle");
