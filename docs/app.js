@@ -520,7 +520,6 @@ ${hidraulica.perdidaAntesFuga.toFixed(2)} Pa
 Pérdida de presión después de la fuga:
 ${hidraulica.perdidaDespuesFuga.toFixed(2)} Pa
     `;
-
     // ACTUALIZAR VISUALIZACION 2D DE LA TUBERIA
     const longitudTuberia = obtenerNumero("longitud");
     const diametroTuberia = obtenerNumero("diametro");
@@ -555,29 +554,26 @@ ${hidraulica.perdidaDespuesFuga.toFixed(2)} Pa
         hidraulica.regimen;
     dibujarPerfilTermico(termica.perfil);
    actualizarTemperaturasSensores(termica.perfil);
-   
-// ACTUALIZAR VISUALIZACION DE FUGA
+   // ACTUALIZAR VISUALIZACION DE FUGA
+
 const fugaVisual = document.getElementById("fuga-visualizacion");
 
 if (fugaVisual) {
 
-    if (hidraulica.caudalFuga > 0) {
+    const fugaActiva = hidraulica.caudalFuga > 0;
 
-        fugaVisual.style.display = "inline";
+    fugaVisual.style.display = fugaActiva ? "inline" : "none";
 
-        const posicionX =
-            42 + (816 * hidraulica.posicionFuga / 100);
+    if (fugaActiva) {
 
-        const desplazamientoX = posicionX - 516;
+        const posicionX = 42 + (
+            816 * hidraulica.posicionFuga / 100
+        );
 
         fugaVisual.setAttribute(
             "transform",
-            `translate(${desplazamientoX}, 0)`
+            "translate(" + (posicionX - 516) + ", 0)"
         );
-
-    } else {
-
-        fugaVisual.style.display = "none";
 
     }
 }
