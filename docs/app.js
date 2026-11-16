@@ -304,55 +304,83 @@ function calcularTemperatura(
         (Tin - Tamb) * Math.exp(-exponente)
     );
 }
-
-
-
 function modeloTermico(parametros, hidraulica) {
 
-    const {
-        L,
-        D,
-        Tin,
-        Tamb,
-        U
-    } = parametros;
+    const { L, D, Tin, Tamb, U } = parametros;
 
-    // Caudal masico considerando la fuga
-    const mdot =
-        AGUA.rho * hidraulica.caudalPromedio;
+    const caudalMasicoEntrada =
+        AGUA.rho * hidraulica.caudalEntrada;
+
+    const caudalMasicoSalida =
+        AGUA.rho * hidraulica.caudalSalida;
+
+    const fugaActiva = hidraulica.caudalFuga > 0;
+
+    const distanciaFuga = fugaActiva
+        ? L * (hidraulica.posicionFuga / 100)
+        : L;
 
     const puntos = [];
-
     const numeroPuntos = 101;
+
+    const temperaturaEnFuga = calcularTemperatura(
+        distanciaFuga,
+        Tin,
+        Tamb,
+        D,
+        U,
+        caudalMasicoEntrada,
+        AGUA.cp
+    );
 
     for (let i = 0; i < numeroPuntos; i++) {
 
-        const x =
-            (L * i) / (numeroPuntos - 1);
+        const x = (L * i) / (numeroPuntos - 1);
 
-        const T = calcularTemperatura(
-            x,
-            Tin,
-            Tamb,
-            D,
-            U,
-            mdot,
-            AGUA.cp
-        );
+        let temperatura;
+
+        if (fugaActiva && x > distanciaFuga) {
+
+            temperatura = calcularTemperatura(
+                x - distanciaFuga,
+                temperaturaEnFuga,
+                Tamb,
+                D,
+                U,
+                caudalMasicoSalida,
+                AGUA.cp
+            );
+
+        } else {
+
+            temperatura = calcularTemperatura(
+                x,
+                Tin,
+                Tamb,
+                D,
+                U,
+                caudalMasicoEntrada,
+                AGUA.cp
+            );
+
+        }
 
         puntos.push({
             distancia: x,
-            temperatura: T
+            temperatura: temperatura
         });
     }
 
     return {
         temperaturaSalida: puntos[puntos.length - 1].temperatura,
-        caudalMasico: mdot,
+        caudalMasico: AGUA.rho * hidraulica.caudalPromedio,
+        caudalMasicoEntrada: caudalMasicoEntrada,
+        caudalMasicoSalida: caudalMasicoSalida,
+        temperaturaEnFuga: temperaturaEnFuga,
+        distanciaFuga: fugaActiva ? distanciaFuga : null,
         perfil: puntos
     };
 }
-
 /* =========================================
    10. LEER PARAMETROS DE LA PAGINA
 ========================================= */
