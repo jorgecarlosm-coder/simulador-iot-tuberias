@@ -839,7 +839,53 @@ function actualizarTemperaturasSensores(datos) {
         estado.textContent = estadoSensor;
 
         sensor.appendChild(estado);
-    });
+    }); // Aquí termina sensores.forEach()
+
+
+    // RESUMEN DE DISTRIBUCION DE SENSORES
+
+    const resumen = document.getElementById("resumen-sensores");
+
+    if (resumen) {
+
+        let sensoresAntes = 0;
+        let sensoresDespues = 0;
+        let sensoresEnFuga = 0;
+
+        sensores.forEach(sensor => {
+
+            const distancia = Number(
+                sensor.getAttribute("data-distancia")
+            );
+
+            if (fugaActiva) {
+
+                if (Math.abs(distancia - posicionFuga) < 0.01) {
+                    sensoresEnFuga++;
+                } else if (distancia < posicionFuga) {
+                    sensoresAntes++;
+                } else {
+                    sensoresDespues++;
+                }
+
+            } else {
+                sensoresAntes++;
+            }
+        });
+
+        resumen.innerHTML = `
+            <strong>Distribución de sensores</strong>
+            <br><br>
+            Total de sensores: ${sensores.length}
+            <br>
+            Sensores antes de la fuga: ${sensoresAntes}
+            <br>
+            Sensores en el punto de fuga: ${sensoresEnFuga}
+            <br>
+            Sensores después de la fuga: ${sensoresDespues}
+        `;
+    }
+
 }
 
 /* =========================================
