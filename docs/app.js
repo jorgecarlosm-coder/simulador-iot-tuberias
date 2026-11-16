@@ -387,6 +387,7 @@ function mostrarResultados(hidraulica, termica) {
     document.getElementById("tuberia-regimen").textContent =
         hidraulica.regimen;
     dibujarPerfilTermico(termica.perfil);
+   actualizarTemperaturasSensores(termica.perfil);
 }
 
 
@@ -510,7 +511,55 @@ function dibujarPerfilTermico(datos) {
         </svg>
     `;
 }
+// Actualizar las temperaturas de los sensores de la tubería.
+function actualizarTemperaturasSensores(datos) {
 
+    const grupo = document.getElementById("sensores-tuberia");
+    const selector = document.getElementById("cantidad-sensores");
+
+    if (!grupo || !selector || !datos || datos.length === 0) {
+        return;
+    }
+
+    const sensores = grupo.querySelectorAll("g[id^='sensor-']");
+
+    const longitud = datos[datos.length - 1].distancia;
+
+    sensores.forEach((sensor, indice) => {
+
+        const distancia =
+            longitud * (indice + 1) / (sensores.length + 1);
+
+        let puntoCercano = datos[0];
+
+        datos.forEach(punto => {
+            if (
+                Math.abs(punto.distancia - distancia) <
+                Math.abs(puntoCercano.distancia - distancia)
+            ) {
+                puntoCercano = punto;
+            }
+        });
+
+        const temperatura = puntoCercano.temperatura;
+
+        const etiqueta = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+        );
+
+        etiqueta.setAttribute("x", sensor.querySelector("circle").getAttribute("cx"));
+        etiqueta.setAttribute("y", 215);
+        etiqueta.setAttribute("text-anchor", "middle");
+        etiqueta.setAttribute("fill", "#fbbf24");
+        etiqueta.setAttribute("font-size", "12");
+        etiqueta.setAttribute("font-weight", "bold");
+
+        etiqueta.textContent = `${temperatura.toFixed(1)} °C`;
+
+        sensor.appendChild(etiqueta);
+    });
+}
 
 /* =========================================
    13. EJECUTAR SIMULACION
