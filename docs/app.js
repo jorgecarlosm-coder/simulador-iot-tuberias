@@ -708,29 +708,43 @@ function dibujarPerfilTermico(datos) {
         </svg>
     `;
 }
-// Actualizar las temperaturas de los sensores de la tubería.
+
+// Actualizar las temperaturas y posiciones de los sensores.
 function actualizarTemperaturasSensores(datos) {
 
     const grupo = document.getElementById("sensores-tuberia");
     const selector = document.getElementById("cantidad-sensores");
+    const controlFuga = document.getElementById("fuga-activa");
 
     if (!grupo || !selector || !datos || datos.length === 0) {
         return;
     }
 
-   const sensores = grupo.querySelectorAll("g[id^='sensor-']");
+    const sensores = grupo.querySelectorAll("g[id^='sensor-']");
 
-// Eliminar las temperaturas mostradas anteriormente.
-grupo.querySelectorAll(".temperatura-sensor").forEach(etiqueta => {
-    etiqueta.remove();
-});
+    // Eliminar etiquetas anteriores.
+    grupo.querySelectorAll(
+        ".temperatura-sensor, .estado-fuga-sensor"
+    ).forEach(etiqueta => etiqueta.remove());
 
-const longitud = datos[datos.length - 1].distancia;
+    const longitud = datos[datos.length - 1].distancia;
+
+    const fugaActiva = controlFuga && controlFuga.checked;
+
+    const posicionFuga = fugaActiva
+        ? longitud * obtenerNumero("posicion-fuga") / 100
+        : null;
+
+    const temperaturas = datos.map(p => p.temperatura);
+
+    const Tmin = Math.min(...temperaturas);
+    const Tmax = Math.max(...temperaturas);
+    const rango = Tmax - Tmin;
 
     sensores.forEach((sensor, indice) => {
 
-        const distancia =
-            longitud * (indice + 1) / (sensores.length + 1);
+        // Obtener la posición física guardada en cada sensor.
+        const distancia = Number(sensor.getAttribute("data-distancia"));
 
         let puntoCercano = datos[0];
 
@@ -744,39 +758,42 @@ const longitud = datos[datos.length - 1].distancia;
         });
 
         const temperatura = puntoCercano.temperatura;
-// Cambiar el color del sensor según la temperatura local.
-const circuloSensor = sensor.querySelector("circle");
 
-const temperaturas = datos.map(p => p.temperatura);
+        // Cambiar el color según la temperatura.
+        const circuloSensor = sensor.querySelector("circle");
 
-const Tmin = Math.min(...temperaturas);
-const Tmax = Math.max(...temperaturas);
+        let colorSensor;
 
-const rango = Tmax - Tmin;
+        if (rango < 0.1) {
+            colorSensor = "#22c55e";
+        } else {
 
-let colorSensor;
+            const proporcion = (temperatura - Tmin) / rango;
 
-if (rango < 0.1) {
-    colorSensor = "#22c55e";
-} else {
-    const proporcion = (temperatura - Tmin) / rango;
+            if (proporcion <= 0.33) {
+                colorSensor = "#38bdf8";
+            } else if (proporcion <= 0.66) {
+                colorSensor = "#facc15";
+            } else {
+                colorSensor = "#ef4444";
+            }
+        }
 
-    if (proporcion <= 0.33) {
-        colorSensor = "#38bdf8"; // Zona fría
-    } else if (proporcion <= 0.66) {
-        colorSensor = "#facc15"; // Zona intermedia
-    } else {
-        colorSensor = "#ef4444"; // Zona caliente
-    }
-}
+        circuloSensor.setAttribute("fill", colorSensor);
 
-circuloSensor.setAttribute("fill", colorSensor);
+        // Mostrar temperatura.
         const etiqueta = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "text"
         );
-       etiqueta.classList.add("temperatura-sensor");
-        etiqueta.setAttribute("x", sensor.querySelector("circle").getAttribute("cx"));
+
+        etiqueta.classList.add("temperatura-sensor");
+
+        etiqueta.setAttribute(
+            "x",
+            circuloSensor.getAttribute("cx")
+        );
+
         etiqueta.setAttribute("y", 215);
         etiqueta.setAttribute("text-anchor", "middle");
         etiqueta.setAttribute("fill", "#fbbf24");
@@ -786,6 +803,42 @@ circuloSensor.setAttribute("fill", colorSensor);
         etiqueta.textContent = `${temperatura.toFixed(1)} °C`;
 
         sensor.appendChild(etiqueta);
+
+        // Clasificar la posición respecto a la fuga.
+        let estadoSensor = "Sin fuga";
+
+        if (fugaActiva) {
+
+            if (Math.abs(distancia - posicionFuga) < 0.01) {
+                estadoSensor = "En fuga";
+            } else if (distancia < posicionFuga) {
+                estadoSensor = "Antes";
+            } else {
+                estadoSensor = "Después";
+            }
+        }
+
+        // Mostrar clasificación debajo de la temperatura.
+        const estado = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+        );
+
+        estado.classList.add("estado-fuga-sensor");
+
+        estado.setAttribute(
+            "x",
+            circuloSensor.getAttribute("cx")
+        );
+
+        estado.setAttribute("y", 247);
+        estado.setAttribute("text-anchor", "middle");
+        estado.setAttribute("fill", "#e2e8f0");
+        estado.setAttribute("font-size", "10");
+
+        estado.textContent = estadoSensor;
+
+        sensor.appendChild(estado);
     });
 }
 
