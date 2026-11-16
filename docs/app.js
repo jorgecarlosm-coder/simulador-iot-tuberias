@@ -439,6 +439,15 @@ Caudal de salida: ${hidraulica.caudalSalida.toExponential(3)} m³/s
         hidraulica.regimen;
     dibujarPerfilTermico(termica.perfil);
    actualizarTemperaturasSensores(termica.perfil);
+   
+// ACTUALIZAR VISUALIZACION DE FUGA
+const fugaVisual = document.getElementById("fuga-visualizacion");
+
+if (fugaVisual) {
+    fugaVisual.style.display =
+        hidraulica.caudalFuga > 0 ? "inline" : "none";
+}
+
 }
 
 
