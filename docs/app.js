@@ -305,7 +305,9 @@ function leerParametros() {
     const porcentajeFuga = fugaActiva
         ? obtenerNumero("porcentaje-fuga")
         : 0;
-
+const posicionFuga = fugaActiva
+    ? obtenerNumero("posicion-fuga")
+    : 0;
     const p = {
 
         L: obtenerNumero("longitud"),
@@ -315,8 +317,9 @@ function leerParametros() {
         Tin: obtenerNumero("temperatura-entrada"),
         Tamb: obtenerNumero("temperatura-ambiente"),
         U: obtenerNumero("coeficiente-u"),
-        fugaActiva: fugaActiva,
-        porcentajeFuga: porcentajeFuga
+       fugaActiva: fugaActiva,
+porcentajeFuga: porcentajeFuga,
+posicionFuga: posicionFuga
 
     };
 
@@ -348,7 +351,14 @@ function leerParametros() {
             "El porcentaje de fuga debe estar entre 1 y 50."
         );
     }
-
+if (
+    p.fugaActiva &&
+    (p.posicionFuga < 1 || p.posicionFuga > 99)
+) {
+    throw new Error(
+        "La posición de la fuga debe estar entre 1 y 99."
+    );
+}
     return p;
 }
 
