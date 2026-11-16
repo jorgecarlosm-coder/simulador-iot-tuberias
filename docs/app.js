@@ -754,7 +754,82 @@ document.addEventListener(
             });
         });
 
+// Dibujar sensores dinámicamente en la tubería 2D.
+function dibujarSensoresTuberia(cantidad) {
+    const grupo = document.getElementById("sensores-tuberia");
 
+    if (!grupo) return;
+
+    grupo.innerHTML = "";
+
+    cantidad = Math.max(1, Math.min(20, Number(cantidad) || 1));
+
+    const espacio = 816 / (cantidad + 1);
+
+    for (let i = 0; i < cantidad; i++) {
+        const x = 42 + espacio * (i + 1);
+
+        const sensor = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "g"
+        );
+
+        sensor.setAttribute("id", `sensor-${i + 1}`);
+
+        const soporte = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+        );
+
+        soporte.setAttribute("x1", x);
+        soporte.setAttribute("y1", 145);
+        soporte.setAttribute("x2", x);
+        soporte.setAttribute("y2", 174);
+        soporte.setAttribute("stroke", "#64748b");
+        soporte.setAttribute("stroke-width", "3");
+
+        const circulo = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+        );
+
+        circulo.setAttribute("cx", x);
+        circulo.setAttribute("cy", 187);
+        circulo.setAttribute("r", "9");
+        circulo.setAttribute("fill", "#f59e0b");
+        circulo.setAttribute("stroke", "#ffffff");
+        circulo.setAttribute("stroke-width", "2");
+
+        const etiqueta = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+        );
+
+        etiqueta.setAttribute("x", x);
+        etiqueta.setAttribute("y", 130);
+        etiqueta.setAttribute("text-anchor", "middle");
+        etiqueta.setAttribute("fill", "#e2e8f0");
+        etiqueta.setAttribute("font-size", "12");
+        etiqueta.textContent = `S${i + 1}`;
+
+        sensor.appendChild(soporte);
+        sensor.appendChild(circulo);
+        sensor.appendChild(etiqueta);
+
+        grupo.appendChild(sensor);
+    }
+}
+// Actualizar sensores cuando cambie la cantidad seleccionada.
+const selectorSensores = document.getElementById("cantidad-sensores");
+
+if (selectorSensores) {
+    selectorSensores.addEventListener("change", () => {
+        dibujarSensoresTuberia(selectorSensores.value);
+    });
+
+    // Dibujar la cantidad inicial de sensores.
+    dibujarSensoresTuberia(selectorSensores.value);
+}
         // Calcular automáticamente al abrir la página.
 
         ejecutarSimulacion();
