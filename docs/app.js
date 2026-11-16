@@ -137,53 +137,82 @@ function modeloHidraulico(parametros) {
         Q,
         Pin,
         fugaActiva,
-        porcentajeFuga
+        porcentajeFuga,
+        posicionFuga
     } = parametros;
 
-    // Calculo del caudal perdido
-    let caudalFuga = 0;
+    // Caudal perdido en el punto de fuga
+    const caudalFuga = fugaActiva
+        ? Q * (porcentajeFuga / 100)
+        : 0;
 
-    if (fugaActiva) {
-        caudalFuga = Q * (porcentajeFuga / 100);
-    }
-
-    // Caudal que continua por la tuberia
+    // Caudal que continua despues de la fuga
     const caudalSalida = Q - caudalFuga;
 
-    // Caudal promedio para el calculo hidraulico
-    const caudalPromedio = (Q + caudalSalida) / 2;
+    // Longitudes de los dos tramos
+    const longitudAntesFuga = fugaActiva
+        ? L * posicionFuga / 100
+        : L;
+
+    const longitudDespuesFuga = L - longitudAntesFuga;
 
     // Area transversal
     const A = calcularArea(D);
 
-    // Velocidad promedio
-    const v = calcularVelocidad(caudalPromedio, A);
+    // Velocidades de cada tramo
+    const velocidadEntrada = calcularVelocidad(Q, A);
+    const velocidadSalida = calcularVelocidad(caudalSalida, A);
 
-    // Numero de Reynolds
-    const Re = calcularReynolds(
+    // Reynolds de cada tramo
+    const reynoldsEntrada = calcularReynolds(
         AGUA.rho,
-        v,
+        velocidadEntrada,
         D,
         AGUA.mu
     );
 
-    // Factor de friccion
-    const f = calcularFactorFriccion(
-        Re,
+    const reynoldsSalida = calcularReynolds(
+        AGUA.rho,
+        velocidadSalida,
+        D,
+        AGUA.mu
+    );
+
+    // Factores de friccion
+    const factorEntrada = calcularFactorFriccion(
+        reynoldsEntrada,
         AGUA.rugosidad,
         D
     );
 
-    // Perdida de presion
-    const perdida = calcularPerdidaPresion(
-        f,
-        L,
-        D,
-        AGUA.rho,
-        v
+    const factorSalida = calcularFactorFriccion(
+        reynoldsSalida,
+        AGUA.rugosidad,
+        D
     );
 
-    // Presion de salida
+    // Perdidas de presion antes y despues de la fuga
+    const perdidaAntesFuga = calcularPerdidaPresion(
+        factorEntrada,
+        longitudAntesFuga,
+        D,
+        AGUA.rho,
+        velocidadEntrada
+    );
+
+    const perdidaDespuesFuga = fugaActiva
+        ? calcularPerdidaPresion(
+            factorSalida,
+            longitudDespuesFuga,
+            D,
+            AGUA.rho,
+            velocidadSalida
+        )
+        : 0;
+
+    // Perdida total de presion
+    const perdida = perdidaAntesFuga + perdidaDespuesFuga;
+
     const Pout = Pin - perdida;
 
     if (Pout <= 0) {
@@ -192,12 +221,32 @@ function modeloHidraulico(parametros) {
         );
     }
 
-    // Regimen del flujo
+    // Presion en el punto de fuga
+    const presionFuga = Pin - perdidaAntesFuga;
+
+    // Valores promedio para los indicadores generales
+    const caudalPromedio = (Q + caudalSalida) / 2;
+    const velocidad = calcularVelocidad(caudalPromedio, A);
+
+    const reynolds = calcularReynolds(
+        AGUA.rho,
+        velocidad,
+        D,
+        AGUA.mu
+    );
+
+    const factor = calcularFactorFriccion(
+        reynolds,
+        AGUA.rugosidad,
+        D
+    );
+
+    // Regimen de flujo representativo
     let regimen;
 
-    if (Re < 2300) {
+    if (reynolds < 2300) {
         regimen = "Laminar";
-    } else if (Re <= 4000) {
+    } else if (reynolds <= 4000) {
         regimen = "Transicion";
     } else {
         regimen = "Turbulento";
@@ -205,9 +254,9 @@ function modeloHidraulico(parametros) {
 
     return {
         area: A,
-        velocidad: v,
-        reynolds: Re,
-        factor: f,
+        velocidad: velocidad,
+        reynolds: reynolds,
+        factor: factor,
         perdida: perdida,
         presionSalida: Pout,
         regimen: regimen,
@@ -216,10 +265,22 @@ function modeloHidraulico(parametros) {
         caudalFuga: caudalFuga,
         caudalSalida: caudalSalida,
         caudalPromedio: caudalPromedio,
-        porcentajeFuga: porcentajeFuga || 0
+        porcentajeFuga: porcentajeFuga || 0,
+
+        longitudAntesFuga: longitudAntesFuga,
+        longitudDespuesFuga: longitudDespuesFuga,
+        posicionFuga: fugaActiva ? posicionFuga : 0,
+
+        velocidadEntrada: velocidadEntrada,
+        velocidadSalida: velocidadSalida,
+        reynoldsEntrada: reynoldsEntrada,
+        reynoldsSalida: reynoldsSalida,
+
+        perdidaAntesFuga: perdidaAntesFuga,
+        perdidaDespuesFuga: perdidaDespuesFuga,
+        presionFuga: presionFuga
     };
 }
-
 /* =========================================
    9. MODELO TERMICO
 ========================================= */
