@@ -547,7 +547,33 @@ const longitud = datos[datos.length - 1].distancia;
         });
 
         const temperatura = puntoCercano.temperatura;
+// Cambiar el color del sensor según la temperatura local.
+const circuloSensor = sensor.querySelector("circle");
 
+const temperaturas = datos.map(p => p.temperatura);
+
+const Tmin = Math.min(...temperaturas);
+const Tmax = Math.max(...temperaturas);
+
+const rango = Tmax - Tmin;
+
+let colorSensor;
+
+if (rango < 0.1) {
+    colorSensor = "#22c55e";
+} else {
+    const proporcion = (temperatura - Tmin) / rango;
+
+    if (proporcion <= 0.33) {
+        colorSensor = "#38bdf8"; // Zona fría
+    } else if (proporcion <= 0.66) {
+        colorSensor = "#facc15"; // Zona intermedia
+    } else {
+        colorSensor = "#ef4444"; // Zona caliente
+    }
+}
+
+circuloSensor.setAttribute("fill", colorSensor);
         const etiqueta = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "text"
