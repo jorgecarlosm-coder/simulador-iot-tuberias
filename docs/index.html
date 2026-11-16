@@ -407,6 +407,43 @@
                       stroke-width="4"
                       marker-end="url(#flecha-flujo)"/>
 
+<!-- REPRESENTACION VISUAL DE FUGA -->
+<g id="fuga-visualizacion" style="display: none;">
+
+    <!-- Abertura en la parte inferior de la tuberia -->
+    <path d="M510 224 L516 231 L522 224"
+          fill="none"
+          stroke="#ef4444"
+          stroke-width="4"
+          stroke-linecap="round"/>
+
+    <!-- Agua escapando -->
+    <path d="M516 232 Q505 248 516 263"
+          fill="none"
+          stroke="#38bdf8"
+          stroke-width="5"
+          stroke-linecap="round"/>
+
+    <path d="M516 263 Q508 273 516 280"
+          fill="none"
+          stroke="#38bdf8"
+          stroke-width="3"
+          stroke-linecap="round"/>
+
+    <!-- Gotas de agua -->
+    <circle cx="500" cy="251" r="3" fill="#38bdf8"/>
+    <circle cx="528" cy="265" r="3" fill="#38bdf8"/>
+
+    <!-- Etiqueta -->
+    <text x="545" y="258"
+          fill="#ef4444"
+          font-size="14"
+          font-weight="bold">
+        FUGA
+    </text>
+
+</g>
+
                 <!-- SENSORES -->
              
 <!-- SENSORES DINAMICOS -->
