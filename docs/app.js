@@ -245,18 +245,20 @@ function calcularTemperatura(
 }
 
 
-function modeloTermico(parametros) {
+
+function modeloTermico(parametros, hidraulica) {
 
     const {
         L,
         D,
-        Q,
         Tin,
         Tamb,
         U
     } = parametros;
 
-    const mdot = AGUA.rho * Q;
+    // Caudal masico considerando la fuga
+    const mdot =
+        AGUA.rho * hidraulica.caudalPromedio;
 
     const puntos = [];
 
@@ -289,7 +291,6 @@ function modeloTermico(parametros) {
         perfil: puntos
     };
 }
-
 
 /* =========================================
    10. LEER PARAMETROS DE LA PAGINA
@@ -667,7 +668,7 @@ function ejecutarSimulacion() {
         );
 
         const termica = modeloTermico(
-            parametros
+            parametros, hidraulica
         );
 
         mostrarResultados(
