@@ -710,6 +710,103 @@ function dibujarPerfilTermico(datos) {
 }
 
 // Actualizar las temperaturas y posiciones de los sensores.
+// ESTIMACION AUTOMATICA DE LA UBICACION DE UNA FUGA
+function estimarUbicacionFuga() {
+
+    const grupo = document.getElementById("sensores-tuberia");
+
+    const estado = document.getElementById("estado-localizacion");
+    const posicion = document.getElementById("posicion-estimada");
+    const tramo = document.getElementById("tramo-estimado");
+    const error = document.getElementById("error-localizacion");
+
+    if (!grupo || !estado || !posicion || !tramo || !error) {
+        return;
+    }
+
+    const sensores = Array.from(
+        grupo.querySelectorAll("g[id^='sensor-']")
+    );
+
+    const mediciones = sensores.map(sensor => {
+
+        const distancia = Number(
+            sensor.getAttribute("data-distancia")
+        );
+
+        const etiqueta = sensor.querySelector(".temperatura-sensor");
+
+        return {
+            distancia: distancia,
+            temperatura: etiqueta
+                ? parseFloat(etiqueta.textContent)
+                : NaN
+        };
+
+    }).filter(sensor =>
+        Number.isFinite(sensor.distancia) &&
+        Number.isFinite(sensor.temperatura)
+    );
+
+    if (mediciones.length < 3) {
+
+        estado.textContent =
+            "Se necesitan al menos 3 sensores para estimar una ubicación.";
+
+        posicion.textContent = "-- m";
+        tramo.textContent = "--";
+        error.textContent = "-- m";
+
+        return;
+    }
+
+    mediciones.sort(
+        (a, b) => a.distancia - b.distancia
+    );
+
+    let mayorVariacion = 0;
+    let indiceTramo = -1;
+
+    for (let i = 0; i < mediciones.length - 1; i++) {
+
+        const variacion = Math.abs(
+            mediciones[i + 1].temperatura -
+            mediciones[i].temperatura
+        );
+
+        if (variacion > mayorVariacion) {
+
+            mayorVariacion = variacion;
+            indiceTramo = i;
+
+        }
+    }
+
+    const sensorInicial = mediciones[indiceTramo];
+    const sensorFinal = mediciones[indiceTramo + 1];
+
+    const posicionCalculada = (
+        sensorInicial.distancia +
+        sensorFinal.distancia
+    ) / 2;
+
+    estado.textContent =
+        mayorVariacion > 0
+            ? "Tramo con mayor variación térmica identificado."
+            : "No se identificó una variación térmica.";
+
+    posicion.textContent =
+        posicionCalculada.toFixed(2) + " m";
+
+    tramo.textContent =
+        sensorInicial.distancia.toFixed(2) +
+        " m – " +
+        sensorFinal.distancia.toFixed(2) +
+        " m";
+
+    error.textContent =
+        "Pendiente de evaluación";
+}
 function actualizarTemperaturasSensores(datos) {
 
     const grupo = document.getElementById("sensores-tuberia");
