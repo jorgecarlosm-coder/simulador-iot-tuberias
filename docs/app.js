@@ -897,11 +897,7 @@ function ejecutarSimulacion() {
     try {
 
         const parametros = leerParametros();
-const selectorSensores = document.getElementById("cantidad-sensores");
 
-if (selectorSensores) {
-    dibujarSensoresTuberia(selectorSensores.value);
-}
         const hidraulica = modeloHidraulico(
             parametros
         );
