@@ -1216,6 +1216,16 @@ if (selectorSensores) {
     // Dibujar la cantidad inicial de sensores.
     dibujarSensoresTuberia(selectorSensores.value);
 }
+// Actualizar posiciones de sensores cuando cambie la longitud.
+const campoLongitud = document.getElementById("longitud");
+
+if (campoLongitud) {
+    campoLongitud.addEventListener("change", () => {
+        if (selectorSensores) {
+            dibujarSensoresTuberia(selectorSensores.value);
+        }
+    });
+}
         // Calcular automáticamente al abrir la página.
 
         ejecutarSimulacion();
