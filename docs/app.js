@@ -564,6 +564,8 @@ ${hidraulica.perdidaDespuesFuga.toFixed(2)} Pa
         hidraulica.regimen;
     dibujarPerfilTermico(termica.perfil);
    actualizarTemperaturasSensores(termica.perfil);
+   // ESTIMAR AUTOMATICAMENTE LA UBICACION DE LA FUGA
+estimarUbicacionFuga();
    // ACTUALIZAR VISUALIZACION DE FUGA
 
 const fugaVisual = document.getElementById("fuga-visualizacion");
