@@ -928,17 +928,82 @@ if (resultadoHidraulico) {
         "estado-localizacion"
     );
 
-    if (estimacionHidraulica.detectada) {
+ 
+if (estimacionHidraulica.detectada) {
 
-        estado.textContent =
-            "Se detectó una anomalía en el perfil de presión.";
+    estado.textContent =
+        "Se detectó una anomalía en el perfil de presión.";
+
+    const posicion = estimacionHidraulica.posicion;
+
+    document.getElementById("posicion-estimada").textContent =
+        posicion.toFixed(2) + " m";
+
+    // Identificar el sensor más cercano
+    const sensoresOrdenados = [...medicionesPresion].sort(
+        (a, b) => a.distancia - b.distancia
+    );
+
+    let indiceCercano = 0;
+    let menorDistancia = Infinity;
+
+    sensoresOrdenados.forEach((sensor, i) => {
+
+        const diferencia = Math.abs(
+            sensor.distancia - posicion
+        );
+
+        if (diferencia < menorDistancia) {
+            menorDistancia = diferencia;
+            indiceCercano = i;
+        }
+
+    });
+
+    const sensorCercano = sensoresOrdenados[indiceCercano];
+
+    document.getElementById("tramo-estimado").textContent =
+        "Cercano al sensor " + (indiceCercano + 1);
+
+    // Comparación con la posición real SOLO para evaluar el error
+    const fugaActiva =
+        hidraulica.caudalFuga > 0;
+
+    if (fugaActiva) {
+
+        const posicionReal =
+            hidraulica.longitudAntesFuga;
+
+        const error = Math.abs(
+            posicion - posicionReal
+        );
+
+        document.getElementById("error-localizacion").textContent =
+            error.toFixed(2) + " m";
 
     } else {
 
-        estado.textContent =
-            "No se detectó un cambio significativo en el perfil de presión.";
+        document.getElementById("error-localizacion").textContent =
+            "No aplica";
 
     }
+
+} else {
+
+    estado.textContent =
+        "No se detectó un cambio significativo en el perfil de presión.";
+
+    document.getElementById("posicion-estimada").textContent =
+        "-- m";
+
+    document.getElementById("tramo-estimado").textContent =
+        "--";
+
+    document.getElementById("error-localizacion").textContent =
+        "-- m";
+
+}
+
 }
 
     const grupo = document.getElementById("sensores-tuberia");
