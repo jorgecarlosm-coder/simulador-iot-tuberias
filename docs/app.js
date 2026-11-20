@@ -389,6 +389,83 @@ function generarMedicionesPresion(parametros, hidraulica) {
     return mediciones;
 }
 
+ // ESTIMAR UBICACION DE FUGA MEDIANTE PRESION
+function estimarFugaHidraulica(mediciones) {
+
+    if (!mediciones || mediciones.length < 3) {
+        return {
+            detectada: false,
+            posicion: null,
+            variacion: 0
+        };
+    }
+
+    // Ordenar mediciones según la distancia
+    const datos = [...mediciones].sort(
+        (a, b) => a.distancia - b.distancia
+    );
+
+    // Calcular pendientes entre sensores consecutivos
+    const pendientes = [];
+
+    for (let i = 0; i < datos.length - 1; i++) {
+
+        const distancia =
+            datos[i + 1].distancia - datos[i].distancia;
+
+        if (distancia <= 0) continue;
+
+        const pendiente =
+            (datos[i + 1].presion - datos[i].presion) /
+            distancia;
+
+        pendientes.push({
+            pendiente: Math.abs(pendiente),
+            posicion: datos[i + 1].distancia
+        });
+    }
+
+    if (pendientes.length < 2) {
+        return {
+            detectada: false,
+            posicion: null,
+            variacion: 0
+        };
+    }
+
+    // Buscar el cambio más significativo entre pendientes
+    let mayorVariacion = 0;
+    let posicionEstimada = null;
+
+    for (let i = 0; i < pendientes.length - 1; i++) {
+
+        const p1 = pendientes[i].pendiente;
+        const p2 = pendientes[i + 1].pendiente;
+
+        const referencia = Math.max(p1, p2);
+
+        if (referencia === 0) continue;
+
+        const variacion =
+            Math.abs(p1 - p2) / referencia;
+
+        if (variacion > mayorVariacion) {
+
+            mayorVariacion = variacion;
+            posicionEstimada = pendientes[i].posicion;
+        }
+    }
+
+    // Umbral inicial de variación del 15 %
+    const detectada = mayorVariacion >= 0.15;
+
+    return {
+        detectada: detectada,
+        posicion: detectada ? posicionEstimada : null,
+        variacion: mayorVariacion
+    };
+}
+
 /* =========================================
    9. MODELO TERMICO
 ========================================= */
