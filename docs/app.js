@@ -900,6 +900,47 @@ function dibujarPerfilTermico(datos) {
 // ESTIMACION AUTOMATICA DE LA UBICACION DE UNA FUGA
 function estimarUbicacionFuga() {
 
+// GENERAR Y ANALIZAR MEDICIONES DE PRESION
+const parametrosPresion = {
+    L: obtenerNumero("longitud"),
+    D: obtenerNumero("diametro"),
+    Q: obtenerNumero("caudal-entrada"),
+    Pin: obtenerNumero("presion-entrada")
+};
+
+const medicionesPresion = generarMedicionesPresion(
+    parametrosPresion,
+    hidraulica
+);
+
+const estimacionHidraulica = estimarFugaHidraulica(
+    medicionesPresion
+);
+
+// MOSTRAR RESULTADO DEL ESTIMADOR HIDRAULICO
+const resultadoHidraulico = document.getElementById(
+    "resultado-localizacion"
+);
+
+if (resultadoHidraulico) {
+
+    const estado = document.getElementById(
+        "estado-localizacion"
+    );
+
+    if (estimacionHidraulica.detectada) {
+
+        estado.textContent =
+            "Se detectó una anomalía en el perfil de presión.";
+
+    } else {
+
+        estado.textContent =
+            "No se detectó un cambio significativo en el perfil de presión.";
+
+    }
+}
+
     const grupo = document.getElementById("sensores-tuberia");
 
     const estado = document.getElementById("estado-localizacion");
