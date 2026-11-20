@@ -751,6 +751,98 @@ ${hidraulica.perdidaDespuesFuga.toFixed(2)} Pa
    actualizarTemperaturasSensores(termica.perfil);
    // ESTIMAR AUTOMATICAMENTE LA UBICACION DE LA FUGA
 estimarUbicacionFuga();
+   
+    // GENERAR Y ANALIZAR MEDICIONES DE PRESION
+    const parametrosPresion = {
+        D: obtenerNumero("diametro"),
+        Q: obtenerNumero("caudal-entrada"),
+        Pin: obtenerNumero("presion-entrada")
+    };
+
+    const medicionesPresion = generarMedicionesPresion(
+        parametrosPresion,
+        hidraulica
+    );
+
+    const estimacionHidraulica = estimarFugaHidraulica(
+        medicionesPresion
+    );
+
+    // MOSTRAR RESULTADO DEL ESTIMADOR HIDRAULICO
+    const estadoHidraulico = document.getElementById(
+        "estado-localizacion"
+    );
+
+    if (estadoHidraulico) {
+
+        if (estimacionHidraulica.detectada) {
+
+            estadoHidraulico.textContent =
+                "Se detectó una anomalía en el perfil de presión.";
+
+            const posicion = estimacionHidraulica.posicion;
+
+            document.getElementById("posicion-estimada").textContent =
+                posicion.toFixed(2) + " m";
+
+            const sensoresOrdenados = [...medicionesPresion].sort(
+                (a, b) => a.distancia - b.distancia
+            );
+
+            let indiceCercano = 0;
+            let menorDistancia = Infinity;
+
+            sensoresOrdenados.forEach((sensor, i) => {
+
+                const diferencia = Math.abs(
+                    sensor.distancia - posicion
+                );
+
+                if (diferencia < menorDistancia) {
+                    menorDistancia = diferencia;
+                    indiceCercano = i;
+                }
+
+            });
+
+            document.getElementById("tramo-estimado").textContent =
+                "Cercano al sensor " + (indiceCercano + 1);
+
+            if (hidraulica.caudalFuga > 0) {
+
+                const posicionReal =
+                    hidraulica.longitudAntesFuga;
+
+                const error = Math.abs(
+                    posicion - posicionReal
+                );
+
+                document.getElementById("error-localizacion").textContent =
+                    error.toFixed(2) + " m";
+
+            } else {
+
+                document.getElementById("error-localizacion").textContent =
+                    "No aplica";
+
+            }
+
+        } else {
+
+            estadoHidraulico.textContent =
+                "No se detectó un cambio significativo en el perfil de presión.";
+
+            document.getElementById("posicion-estimada").textContent =
+                "-- m";
+
+            document.getElementById("tramo-estimado").textContent =
+                "--";
+
+            document.getElementById("error-localizacion").textContent =
+                "-- m";
+        }
+    }
+
    // ACTUALIZAR VISUALIZACION DE FUGA
 
 const fugaVisual = document.getElementById("fuga-visualizacion");
