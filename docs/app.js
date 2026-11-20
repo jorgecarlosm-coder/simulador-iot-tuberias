@@ -392,9 +392,10 @@ function generarMedicionesPresion(parametros, hidraulica) {
  // ESTIMAR UBICACION DE FUGA MEDIANTE PRESION
 
 // ESTIMAR UBICACION DE FUGA MEDIANTE INTERPOLACION
+
 function estimarFugaHidraulica(mediciones) {
 
-    if (!mediciones || mediciones.length < 4) {
+    if (!mediciones || mediciones.length < 3) {
         return {
             detectada: false,
             posicion: null,
@@ -402,12 +403,10 @@ function estimarFugaHidraulica(mediciones) {
         };
     }
 
-    // Ordenar mediciones por distancia
     const datos = [...mediciones].sort(
         (a, b) => a.distancia - b.distancia
     );
 
-    // Calcular pendientes entre sensores consecutivos
     const pendientes = [];
 
     for (let i = 0; i < datos.length - 1; i++) {
@@ -417,19 +416,50 @@ function estimarFugaHidraulica(mediciones) {
 
         if (distancia <= 0) continue;
 
-        const pendiente =
-            Math.abs(
-                (datos[i + 1].presion - datos[i].presion) /
-                distancia
-            );
+        const pendiente = Math.abs(
+            (datos[i + 1].presion - datos[i].presion) / distancia
+        );
 
         pendientes.push({
-            pendiente: pendiente,
+            pendiente,
             inicio: datos[i].distancia,
             fin: datos[i + 1].distancia
         });
     }
 
+    // Caso de 3 sensores: localización aproximada
+    if (datos.length === 3) {
+
+        const pendienteAntes = pendientes[0].pendiente;
+        const pendienteDespues = pendientes[1].pendiente;
+
+        const referencia = Math.max(
+            pendienteAntes,
+            pendienteDespues
+        );
+
+        if (referencia === 0) {
+            return {
+                detectada: false,
+                posicion: null,
+                variacion: 0
+            };
+        }
+
+        const variacion = Math.abs(
+            pendienteAntes - pendienteDespues
+        ) / referencia;
+
+        const detectada = variacion >= 0.15;
+
+        return {
+            detectada,
+            posicion: detectada ? datos[1].distancia : null,
+            variacion
+        };
+    }
+
+    // Caso de 5 y 8 sensores
     if (pendientes.length < 3) {
         return {
             detectada: false,
@@ -441,17 +471,11 @@ function estimarFugaHidraulica(mediciones) {
     let mayorVariacion = 0;
     let posicionEstimada = null;
 
-    // Buscar un intervalo de transición
     for (let i = 1; i < pendientes.length - 1; i++) {
 
-        const pendienteAntes =
-            pendientes[i - 1].pendiente;
-
-        const pendienteTransicion =
-            pendientes[i].pendiente;
-
-        const pendienteDespues =
-            pendientes[i + 1].pendiente;
+        const pendienteAntes = pendientes[i - 1].pendiente;
+        const pendienteTransicion = pendientes[i].pendiente;
+        const pendienteDespues = pendientes[i + 1].pendiente;
 
         const referencia = Math.max(
             pendienteAntes,
@@ -460,46 +484,40 @@ function estimarFugaHidraulica(mediciones) {
 
         if (referencia === 0) continue;
 
-        const variacion =
-            Math.abs(pendienteAntes - pendienteDespues) /
-            referencia;
+        const variacion = Math.abs(
+            pendienteAntes - pendienteDespues
+        ) / referencia;
 
-        // Calcular la fracción de intervalo anterior a la fuga
-        const diferencia =
-            pendienteAntes - pendienteDespues;
+        const diferencia = pendienteAntes - pendienteDespues;
 
         if (Math.abs(diferencia) < 1e-12) continue;
 
         const fraccion =
-            (pendienteTransicion - pendienteDespues) /
-            diferencia;
+            (pendienteTransicion - pendienteDespues) / diferencia;
 
-        // La posición debe estar dentro del intervalo
         if (fraccion < 0 || fraccion > 1) continue;
 
         const posicion =
             pendientes[i].inicio +
-            fraccion *
-            (pendientes[i].fin - pendientes[i].inicio);
+            fraccion * (pendientes[i].fin - pendientes[i].inicio);
 
         if (variacion > mayorVariacion) {
-
             mayorVariacion = variacion;
             posicionEstimada = posicion;
         }
     }
 
-    // Umbral inicial de detección
     const detectada =
         mayorVariacion >= 0.15 &&
         posicionEstimada !== null;
 
     return {
-        detectada: detectada,
+        detectada,
         posicion: detectada ? posicionEstimada : null,
         variacion: mayorVariacion
     };
 }
+
 
 /* =========================================
    9. MODELO TERMICO
