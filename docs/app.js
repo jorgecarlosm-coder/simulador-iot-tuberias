@@ -281,6 +281,78 @@ function modeloHidraulico(parametros) {
         presionFuga: presionFuga
     };
 }
+
+// GENERAR MEDICIONES SIMULADAS DE PRESION
+function generarMedicionesPresion(parametros, hidraulica) {
+
+    const grupo = document.getElementById("sensores-tuberia");
+
+    if (!grupo) return [];
+
+    const sensores = Array.from(
+        grupo.querySelectorAll("g[id^='sensor-']")
+    );
+
+    const mediciones = [];
+
+    const A = calcularArea(parametros.D);
+
+    sensores.forEach(sensor => {
+
+        const distancia = Number(
+            sensor.getAttribute("data-distancia")
+        );
+
+        const velocidadEntrada = hidraulica.velocidadEntrada;
+        const velocidadSalida = hidraulica.velocidadSalida;
+
+        let presion;
+
+        if (
+            distancia <= hidraulica.longitudAntesFuga
+        ) {
+
+            const perdidaLocal = calcularPerdidaPresion(
+                hidraulica.factor,
+                distancia,
+                parametros.D,
+                AGUA.rho,
+                velocidadEntrada
+            );
+
+            presion = parametros.Pin - perdidaLocal;
+
+        } else {
+
+            const perdidaAntes = hidraulica.perdidaAntesFuga;
+
+            const distanciaDespues =
+                distancia - hidraulica.longitudAntesFuga;
+
+            const perdidaDespues = calcularPerdidaPresion(
+                hidraulica.factor,
+                distanciaDespues,
+                parametros.D,
+                AGUA.rho,
+                velocidadSalida
+            );
+
+            presion =
+                parametros.Pin -
+                perdidaAntes -
+                perdidaDespues;
+        }
+
+        mediciones.push({
+            distancia: distancia,
+            presion: presion
+        });
+
+    });
+
+    return mediciones;
+}
+
 /* =========================================
    9. MODELO TERMICO
 ========================================= */
