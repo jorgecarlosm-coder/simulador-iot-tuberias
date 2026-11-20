@@ -281,7 +281,6 @@ function modeloHidraulico(parametros) {
         presionFuga: presionFuga
     };
 }
-
 // GENERAR MEDICIONES SIMULADAS DE PRESION
 function generarMedicionesPresion(parametros, hidraulica) {
 
@@ -295,16 +294,53 @@ function generarMedicionesPresion(parametros, hidraulica) {
 
     const mediciones = [];
 
-    const A = calcularArea(parametros.D);
+    const D = parametros.D;
+    const A = calcularArea(D);
+
+    // Velocidades de cada tramo
+    const velocidadEntrada = calcularVelocidad(
+        parametros.Q,
+        A
+    );
+
+    const velocidadSalida = calcularVelocidad(
+        hidraulica.caudalSalida,
+        A
+    );
+
+    // Reynolds de cada tramo
+    const reynoldsEntrada = calcularReynolds(
+        AGUA.rho,
+        velocidadEntrada,
+        D,
+        AGUA.mu
+    );
+
+    const reynoldsSalida = calcularReynolds(
+        AGUA.rho,
+        velocidadSalida,
+        D,
+        AGUA.mu
+    );
+
+    // Factores de fricción de cada tramo
+    const factorEntrada = calcularFactorFriccion(
+        reynoldsEntrada,
+        AGUA.rugosidad,
+        D
+    );
+
+    const factorSalida = calcularFactorFriccion(
+        reynoldsSalida,
+        AGUA.rugosidad,
+        D
+    );
 
     sensores.forEach(sensor => {
 
         const distancia = Number(
             sensor.getAttribute("data-distancia")
         );
-
-        const velocidadEntrada = hidraulica.velocidadEntrada;
-        const velocidadSalida = hidraulica.velocidadSalida;
 
         let presion;
 
@@ -313,9 +349,9 @@ function generarMedicionesPresion(parametros, hidraulica) {
         ) {
 
             const perdidaLocal = calcularPerdidaPresion(
-                hidraulica.factor,
+                factorEntrada,
                 distancia,
-                parametros.D,
+                D,
                 AGUA.rho,
                 velocidadEntrada
             );
@@ -330,9 +366,9 @@ function generarMedicionesPresion(parametros, hidraulica) {
                 distancia - hidraulica.longitudAntesFuga;
 
             const perdidaDespues = calcularPerdidaPresion(
-                hidraulica.factor,
+                factorSalida,
                 distanciaDespues,
-                parametros.D,
+                D,
                 AGUA.rho,
                 velocidadSalida
             );
