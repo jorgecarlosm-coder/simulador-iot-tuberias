@@ -390,9 +390,11 @@ function generarMedicionesPresion(parametros, hidraulica) {
 }
 
  // ESTIMAR UBICACION DE FUGA MEDIANTE PRESION
+
+// ESTIMAR UBICACION DE FUGA MEDIANTE INTERPOLACION
 function estimarFugaHidraulica(mediciones) {
 
-    if (!mediciones || mediciones.length < 3) {
+    if (!mediciones || mediciones.length < 4) {
         return {
             detectada: false,
             posicion: null,
@@ -400,7 +402,7 @@ function estimarFugaHidraulica(mediciones) {
         };
     }
 
-    // Ordenar mediciones según la distancia
+    // Ordenar mediciones por distancia
     const datos = [...mediciones].sort(
         (a, b) => a.distancia - b.distancia
     );
@@ -416,16 +418,19 @@ function estimarFugaHidraulica(mediciones) {
         if (distancia <= 0) continue;
 
         const pendiente =
-            (datos[i + 1].presion - datos[i].presion) /
-            distancia;
+            Math.abs(
+                (datos[i + 1].presion - datos[i].presion) /
+                distancia
+            );
 
         pendientes.push({
-            pendiente: Math.abs(pendiente),
-            posicion: datos[i + 1].distancia
+            pendiente: pendiente,
+            inicio: datos[i].distancia,
+            fin: datos[i + 1].distancia
         });
     }
 
-    if (pendientes.length < 2) {
+    if (pendientes.length < 3) {
         return {
             detectada: false,
             posicion: null,
@@ -433,31 +438,61 @@ function estimarFugaHidraulica(mediciones) {
         };
     }
 
-    // Buscar el cambio más significativo entre pendientes
     let mayorVariacion = 0;
     let posicionEstimada = null;
 
-    for (let i = 0; i < pendientes.length - 1; i++) {
+    // Buscar un intervalo de transición
+    for (let i = 1; i < pendientes.length - 1; i++) {
 
-        const p1 = pendientes[i].pendiente;
-        const p2 = pendientes[i + 1].pendiente;
+        const pendienteAntes =
+            pendientes[i - 1].pendiente;
 
-        const referencia = Math.max(p1, p2);
+        const pendienteTransicion =
+            pendientes[i].pendiente;
+
+        const pendienteDespues =
+            pendientes[i + 1].pendiente;
+
+        const referencia = Math.max(
+            pendienteAntes,
+            pendienteDespues
+        );
 
         if (referencia === 0) continue;
 
         const variacion =
-            Math.abs(p1 - p2) / referencia;
+            Math.abs(pendienteAntes - pendienteDespues) /
+            referencia;
+
+        // Calcular la fracción de intervalo anterior a la fuga
+        const diferencia =
+            pendienteAntes - pendienteDespues;
+
+        if (Math.abs(diferencia) < 1e-12) continue;
+
+        const fraccion =
+            (pendienteTransicion - pendienteDespues) /
+            diferencia;
+
+        // La posición debe estar dentro del intervalo
+        if (fraccion < 0 || fraccion > 1) continue;
+
+        const posicion =
+            pendientes[i].inicio +
+            fraccion *
+            (pendientes[i].fin - pendientes[i].inicio);
 
         if (variacion > mayorVariacion) {
 
             mayorVariacion = variacion;
-            posicionEstimada = pendientes[i].posicion;
+            posicionEstimada = posicion;
         }
     }
 
-    // Umbral inicial de variación del 15 %
-    const detectada = mayorVariacion >= 0.15;
+    // Umbral inicial de detección
+    const detectada =
+        mayorVariacion >= 0.15 &&
+        posicionEstimada !== null;
 
     return {
         detectada: detectada,
