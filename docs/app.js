@@ -2085,6 +2085,211 @@ function mostrarLaboratorioH2() {
     actualizarGraficaH2();
 }
 
+function mostrarLaboratorioH3() {
+
+    const contenedor = document.getElementById("detalle-experimento");
+
+    contenedor.innerHTML = `
+        <div class="laboratorio-h3">
+
+            <h3>H3 - Influencia de la cantidad de sensores</h3>
+
+            <p>
+                En este experimento observarás cómo la cantidad
+                de sensores distribuidos a lo largo de una tubería
+                influye en la localización de una fuga.
+            </p>
+
+            <div class="panel-h1">
+
+                <h4>1. Configuración de sensores</h4>
+
+                <p>
+                    Cantidad de sensores instalada:
+                    <strong id="cantidad-h3">--</strong>
+                </p>
+
+                <p>
+                    Modifica la cantidad de sensores en la
+                    configuración principal de la simulación.
+                </p>
+
+            </div>
+
+            <div class="panel-h1">
+
+                <h4>2. Distribución de los sensores</h4>
+
+                <svg id="grafica-h3"
+                     viewBox="0 0 800 160"
+                     width="100%"
+                     role="img"
+                     aria-label="Distribución de sensores en una tubería">
+
+                    <rect x="40" y="65" width="720" height="35"
+                          rx="8" fill="#64748b"/>
+
+                    <g id="sensores-visuales-h3"></g>
+
+                </svg>
+
+                <p>
+                    Los sensores se distribuyen a lo largo
+                    de la tubería para obtener información
+                    de diferentes posiciones.
+                </p>
+
+            </div>
+
+            <div class="panel-h1">
+
+                <h4>3. Ejecutar el análisis</h4>
+
+                <p>
+                    Activa una fuga en la simulación principal
+                    y configura su posición antes de ejecutar
+                    el análisis.
+                </p>
+
+                <button id="analizar-h3">
+                    Calcular localización
+                </button>
+
+                <p id="mensaje-h3">
+                    Esperando el cálculo de la simulación.
+                </p>
+
+            </div>
+
+            <div class="panel-h1">
+
+                <h4>4. Resultados de localización</h4>
+
+                <p>
+                    Estado:
+                    <strong id="estado-h3">Pendiente</strong>
+                </p>
+
+                <p>
+                    Posición estimada:
+                    <strong id="posicion-h3">--</strong>
+                </p>
+
+                <p>
+                    Tramo identificado:
+                    <strong id="tramo-h3">--</strong>
+                </p>
+
+                <p>
+                    Error de localización:
+                    <strong id="error-h3">--</strong>
+                </p>
+
+            </div>
+
+            <div class="panel-h1">
+
+                <h4>5. Interpretación</h4>
+
+                <p id="interpretacion-h3">
+                    Ejecuta el análisis para observar
+                    cómo se comporta el sistema.
+                </p>
+
+            </div>
+
+        </div>
+    `;
+
+    const selector = document.getElementById("cantidad-sensores");
+    const boton = document.getElementById("analizar-h3");
+
+    function actualizarDistribucionH3() {
+
+        const cantidad = Number(selector.value);
+
+        document.getElementById("cantidad-h3").textContent =
+            cantidad + (cantidad === 1 ? " sensor" : " sensores");
+
+        const grupo = document.getElementById("sensores-visuales-h3");
+
+        grupo.innerHTML = "";
+
+        for (let i = 0; i < cantidad; i++) {
+
+            const x = 40 + 720 * (i + 1) / (cantidad + 1);
+
+            const circulo = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "circle"
+            );
+
+            circulo.setAttribute("cx", x);
+            circulo.setAttribute("cy", 82);
+            circulo.setAttribute("r", 10);
+            circulo.setAttribute("fill", "#f59e0b");
+            circulo.setAttribute("stroke", "#ffffff");
+            circulo.setAttribute("stroke-width", 2);
+
+            grupo.appendChild(circulo);
+
+            const etiqueta = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+            );
+
+            etiqueta.setAttribute("x", x);
+            etiqueta.setAttribute("y", 45);
+            etiqueta.setAttribute("text-anchor", "middle");
+            etiqueta.setAttribute("fill", "currentColor");
+            etiqueta.setAttribute("font-size", 13);
+
+            etiqueta.textContent = "S" + (i + 1);
+
+            grupo.appendChild(etiqueta);
+        }
+    }
+
+    function analizarH3() {
+
+        const fugaActiva = document.getElementById("fuga-activa").checked;
+
+        if (!fugaActiva) {
+
+            document.getElementById("mensaje-h3").textContent =
+                "Primero activa una fuga en la configuración principal.";
+
+            return;
+        }
+
+        ejecutarSimulacion();
+
+        const estado = document.getElementById("estado-localizacion").textContent;
+        const posicion = document.getElementById("posicion-estimada").textContent;
+        const tramo = document.getElementById("tramo-estimado").textContent;
+        const error = document.getElementById("error-localizacion").textContent;
+
+        document.getElementById("estado-h3").textContent = estado;
+        document.getElementById("posicion-h3").textContent = posicion;
+        document.getElementById("tramo-h3").textContent = tramo;
+        document.getElementById("error-h3").textContent = error;
+
+        document.getElementById("mensaje-h3").textContent =
+            "Análisis realizado con " + selector.value + " sensores.";
+
+        document.getElementById("interpretacion-h3").textContent =
+            "El resultado corresponde a la estimación calculada por el modelo. " +
+            "Puedes cambiar la cantidad de sensores y repetir el análisis " +
+            "para comparar la localización y el error obtenido.";
+    }
+
+    selector.addEventListener("change", actualizarDistribucionH3);
+
+    boton.addEventListener("click", analizarH3);
+
+    actualizarDistribucionH3();
+}
+
 // Dibujar sensores dinámicamente en la tubería 2D.
 
 function dibujarSensoresTuberia(cantidad) {
