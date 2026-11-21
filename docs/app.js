@@ -1916,7 +1916,18 @@ function mostrarLaboratorioH2() {
                           fill="none"
                           stroke="#2878d0"
                           stroke-width="3"/>
+<!-- Instante real de aparición de la anomalía: 11 segundos -->
+<line x1="306.7" y1="30"
+      x2="306.7" y2="220"
+      stroke="#f59e0b"
+      stroke-width="2"
+      stroke-dasharray="6 4"/>
 
+<text x="315" y="45"
+      fill="#f59e0b"
+      font-size="12">
+    Anomalía (11 s)
+</text>
                     <g id="puntos-h2"></g>
 
                     <text x="55" y="20" fill="currentColor">
