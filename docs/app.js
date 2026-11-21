@@ -1588,9 +1588,9 @@ document.querySelectorAll("[data-experimento]").forEach(boton => {
 
             mostrarLaboratorioH2();
 
-        } else if (codigo === "H3") {
+        } else if (codigo === "H4") {
 
-            mostrarLaboratorioH3();
+            mostrarLaboratorioH4();
 
         } else {
 
@@ -2310,7 +2310,177 @@ function mostrarLaboratorioH3() {
 
     actualizarDistribucionH3();
 }
+// LABORATORIO H4: CLASIFICACION DE FALLAS HIDRAULICAS
+function mostrarLaboratorioH4() {
 
+    const contenedor =
+        document.getElementById("detalle-experimento");
+
+    contenedor.innerHTML = `
+        <h3>H4 - Clasificación de fallas hidráulicas</h3>
+
+        <p>
+            Analiza el comportamiento hidráulico de la tubería
+            ante dos escenarios: fuga y obstrucción.
+        </p>
+
+        <div class="tarjeta-experimento">
+            <strong>Escenario seleccionado</strong>
+
+            <p id="resultado-tipo-h4">
+                Ejecuta el análisis para identificar la falla.
+            </p>
+
+            <p>
+                Pérdida de presión:
+                <strong id="perdida-h4">--</strong>
+            </p>
+
+            <p>
+                Presión de salida:
+                <strong id="presion-h4">--</strong>
+            </p>
+
+            <p>
+                Caudal de salida:
+                <strong id="caudal-h4">--</strong>
+            </p>
+
+            <p id="interpretacion-h4">
+                Aquí aparecerá la interpretación del resultado.
+            </p>
+        </div>
+
+        <button type="button" id="analizar-h4">
+            Analizar falla
+        </button>
+    `;
+
+    const boton =
+        document.getElementById("analizar-h4");
+
+    boton.addEventListener("click", analizarFallaH4);
+}
+
+
+// ANALIZAR LOS DOS ESCENARIOS DE H4
+function analizarFallaH4() {
+
+    try {
+
+        const parametros = leerParametros();
+
+        const tipoFalla =
+            document.getElementById("tipo-falla-h4").value;
+
+        let hidraulica;
+        let perdidaTotal;
+        let presionSalida;
+        let caudalSalida;
+        let interpretacion;
+
+        if (tipoFalla === "fuga") {
+
+            parametros.fugaActiva = true;
+
+            parametros.porcentajeFuga =
+                obtenerNumero("porcentaje-fuga");
+
+            parametros.posicionFuga =
+                obtenerNumero("posicion-fuga");
+
+            hidraulica = modeloHidraulico(parametros);
+
+            perdidaTotal = hidraulica.perdida;
+            presionSalida = hidraulica.presionSalida;
+            caudalSalida = hidraulica.caudalSalida;
+
+            interpretacion =
+                "Se identifica el escenario de fuga porque " +
+                "el caudal de salida es menor que el caudal de entrada.";
+
+        } else {
+
+            parametros.fugaActiva = false;
+            parametros.porcentajeFuga = 0;
+            parametros.posicionFuga = 0;
+
+            hidraulica = modeloHidraulico(parametros);
+
+            const porcentajeObstruccion =
+                obtenerNumero("porcentaje-obstruccion-h4");
+
+            if (
+                porcentajeObstruccion < 1 ||
+                porcentajeObstruccion > 80
+            ) {
+                throw new Error(
+                    "La obstrucción debe estar entre 1 y 80 %."
+                );
+            }
+
+            const perdidaAdicional =
+                calcularPerdidaObstruccion(
+                    porcentajeObstruccion,
+                    AGUA.rho,
+                    hidraulica.velocidad
+                );
+
+            perdidaTotal =
+                hidraulica.perdida + perdidaAdicional;
+
+            presionSalida =
+                parametros.Pin - perdidaTotal;
+
+            if (presionSalida <= 0) {
+                throw new Error(
+                    "La presión calculada no es válida. " +
+                    "Reduce la obstrucción o revisa los parámetros."
+                );
+            }
+
+            caudalSalida = parametros.Q;
+
+            interpretacion =
+                "Se identifica el escenario de obstrucción porque " +
+                "existe una pérdida adicional de presión sin " +
+                "disminución del caudal de entrada.";
+        }
+
+        document.getElementById(
+            "resultado-tipo-h4"
+        ).textContent =
+            tipoFalla === "fuga"
+                ? "Escenario analizado: FUGA"
+                : "Escenario analizado: OBSTRUCCIÓN";
+
+        document.getElementById(
+            "perdida-h4"
+        ).textContent =
+            perdidaTotal.toFixed(2);
+
+        document.getElementById(
+            "presion-h4"
+        ).textContent =
+            presionSalida.toFixed(2);
+
+        document.getElementById(
+            "caudal-h4"
+        ).textContent =
+            caudalSalida.toFixed(5);
+
+        document.getElementById(
+            "interpretacion-h4"
+        ).textContent = interpretacion;
+
+    } catch (error) {
+
+        document.getElementById(
+            "resultado-tipo-h4"
+        ).textContent = error.message;
+
+    }
+}
 // Dibujar sensores dinámicamente en la tubería 2D.
 
 function dibujarSensoresTuberia(cantidad) {
