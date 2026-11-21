@@ -1567,6 +1567,10 @@ document.querySelectorAll("[data-experimento]").forEach(boton => {
 
             mostrarLaboratorioH2();
 
+        } else if (codigo === "H3") {
+
+            mostrarLaboratorioH3();
+
         } else {
 
             cargarResultadosExperimento(codigo);
@@ -1576,7 +1580,6 @@ document.querySelectorAll("[data-experimento]").forEach(boton => {
     });
 
 });
-
 function mostrarLaboratorioH1() {
 
     const contenedor = document.getElementById("detalle-experimento");
