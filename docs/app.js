@@ -1668,10 +1668,6 @@ function mostrarLaboratorioH1() {
             </div>
 
             <div class="panel-h1">
-
-
-<div class="panel-h1">
-
     <h4>3. Interpretación</h4>
 
     <p id="interpretacion-h1">
@@ -1810,7 +1806,7 @@ function actualizarGraficaH1() {
         interpretacion.textContent =
             "Con ruido medio las mediciones presentan fluctuaciones más visibles.";
 
-    } else {
+      } else {
 
         interpretacion.textContent =
             "Con ruido alto las mediciones fluctúan considerablemente y pueden dificultar la detección.";
@@ -1818,7 +1814,15 @@ function actualizarGraficaH1() {
     }
 }
 
+// Eventos del laboratorio H1.
+boton.addEventListener("click", actualizarGraficaH1);
 
+selector.addEventListener("change", actualizarGraficaH1);
+
+// Generar la primera gráfica al abrir el laboratorio.
+actualizarGraficaH1();
+
+}
 
 // Dibujar sensores dinámicamente en la tubería 2D.
 
