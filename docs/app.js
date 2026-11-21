@@ -1768,7 +1768,7 @@ function actualizarGraficaH1() {
     const diferencia = promedioAntes - promedioDespues;
 
     // Detector sencillo por umbral
-    const umbral = 20;
+    const umbral = 35;
     const detectada = diferencia >= umbral;
 
     document.getElementById("presion-antes-h1").textContent =
