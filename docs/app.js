@@ -1669,11 +1669,16 @@ function mostrarLaboratorioH1() {
 
             <div class="panel-h1">
 
-                <h4>3. Interpretación</h4>
 
-                <p id="interpretacion-h1">
-                    Selecciona un nivel de ruido y genera las mediciones.
-                </p>
+<div class="panel-h1">
+
+    <h4>3. Interpretación</h4>
+
+    <p id="interpretacion-h1">
+        Selecciona un nivel de ruido y genera las mediciones.
+    </p>
+
+</div>
 
 <div class="panel-h1">
 
@@ -1710,10 +1715,10 @@ function mostrarLaboratorioH1() {
 
 </div>
 
-            </div>
+</div>
+</div>
+`;
 
-        </div>
-    `;
 
     const selector = document.getElementById("nivel-ruido-h1");
     const boton = document.getElementById("generar-h1");
