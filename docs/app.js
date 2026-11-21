@@ -123,7 +123,28 @@ function calcularPerdidaPresion(
         (rho * Math.pow(v, 2) / 2)
     );
 }
+// CALCULAR PERDIDA DE PRESION POR OBSTRUCCION - H4
+function calcularPerdidaObstruccion(
+    porcentajeObstruccion,
+    rho,
+    velocidad
+) {
 
+    const fraccionObstruida =
+        porcentajeObstruccion / 100;
+
+    const areaRelativa =
+        1 - fraccionObstruida;
+
+    const factorObstruccion =
+        Math.pow(
+            (1 / areaRelativa) - 1,
+            2
+        );
+
+    return factorObstruccion *
+        (rho * Math.pow(velocidad, 2) / 2);
+}
 
 /* =========================================
    8. MODELO HIDRAULICO
