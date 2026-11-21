@@ -145,7 +145,47 @@ function calcularPerdidaObstruccion(
     return factorObstruccion *
         (rho * Math.pow(velocidad, 2) / 2);
 }
+// CLASIFICADOR AUTOMATICO DE FALLAS HIDRAULICAS - H4
+function clasificarFallaH4(
+    caudalEntrada,
+    caudalSalida,
+    perdidaNormal,
+    perdidaMedida
+) {
 
+    const reduccionCaudal =
+        (caudalEntrada - caudalSalida) / caudalEntrada;
+
+    const aumentoPerdida =
+        (perdidaMedida - perdidaNormal) /
+        Math.max(perdidaNormal, 1);
+
+    // Identificar fuga
+    if (reduccionCaudal > 0.01) {
+
+        return {
+            falla: "FUGA",
+            confianza: "Regla hidráulica: reducción del caudal",
+            variacionCaudal: reduccionCaudal * 100
+        };
+    }
+
+    // Identificar obstrucción
+    if (aumentoPerdida > 0.01) {
+
+        return {
+            falla: "OBSTRUCCIÓN",
+            confianza: "Regla hidráulica: aumento de pérdida de presión",
+            variacionPresion: aumentoPerdida * 100
+        };
+    }
+
+    // No se detecta una anomalía
+    return {
+        falla: "SIN FALLA DETECTADA",
+        confianza: "No se superaron los umbrales establecidos"
+    };
+}
 /* =========================================
    8. MODELO HIDRAULICO
 ========================================= */
@@ -2364,6 +2404,8 @@ function mostrarLaboratorioH4() {
 
 
 // ANALIZAR LOS DOS ESCENARIOS DE H4
+
+// ANALIZAR Y CLASIFICAR AUTOMATICAMENTE LAS FALLAS - H4
 function analizarFallaH4() {
 
     try {
@@ -2379,6 +2421,17 @@ function analizarFallaH4() {
         let caudalSalida;
         let interpretacion;
 
+        // MODELO NORMAL DE REFERENCIA, SIN FALLAS
+        const parametrosNormales = {
+            ...parametros,
+            fugaActiva: false,
+            porcentajeFuga: 0,
+            posicionFuga: 0
+        };
+
+        const hidraulicaNormal =
+            modeloHidraulico(parametrosNormales);
+
         if (tipoFalla === "fuga") {
 
             parametros.fugaActiva = true;
@@ -2389,15 +2442,27 @@ function analizarFallaH4() {
             parametros.posicionFuga =
                 obtenerNumero("posicion-fuga");
 
-            hidraulica = modeloHidraulico(parametros);
+            if (
+                parametros.porcentajeFuga < 1 ||
+                parametros.porcentajeFuga > 50 ||
+                parametros.posicionFuga < 1 ||
+                parametros.posicionFuga > 99
+            ) {
+                throw new Error(
+                    "Revisa el porcentaje y la posición de la fuga."
+                );
+            }
+
+            hidraulica =
+                modeloHidraulico(parametros);
 
             perdidaTotal = hidraulica.perdida;
             presionSalida = hidraulica.presionSalida;
             caudalSalida = hidraulica.caudalSalida;
 
             interpretacion =
-                "Se identifica el escenario de fuga porque " +
-                "el caudal de salida es menor que el caudal de entrada.";
+                "El caudal de salida disminuyó respecto al caudal " +
+                "de entrada, comportamiento característico de una fuga.";
 
         } else {
 
@@ -2405,7 +2470,8 @@ function analizarFallaH4() {
             parametros.porcentajeFuga = 0;
             parametros.posicionFuga = 0;
 
-            hidraulica = modeloHidraulico(parametros);
+            hidraulica =
+                modeloHidraulico(parametros);
 
             const porcentajeObstruccion =
                 obtenerNumero("porcentaje-obstruccion-h4");
@@ -2434,25 +2500,32 @@ function analizarFallaH4() {
 
             if (presionSalida <= 0) {
                 throw new Error(
-                    "La presión calculada no es válida. " +
-                    "Reduce la obstrucción o revisa los parámetros."
+                    "Presión de salida no válida. " +
+                    "Reduce el porcentaje de obstrucción."
                 );
             }
 
             caudalSalida = parametros.Q;
 
             interpretacion =
-                "Se identifica el escenario de obstrucción porque " +
-                "existe una pérdida adicional de presión sin " +
-                "disminución del caudal de entrada.";
+                "El caudal se mantiene, pero aumenta la pérdida " +
+                "de presión debido a la resistencia localizada.";
         }
 
+        // CLASIFICACION AUTOMATICA
+        const diagnostico = clasificarFallaH4(
+            parametros.Q,
+            caudalSalida,
+            hidraulicaNormal.perdida,
+            perdidaTotal
+        );
+
+        // MOSTRAR RESULTADOS
         document.getElementById(
             "resultado-tipo-h4"
         ).textContent =
-            tipoFalla === "fuga"
-                ? "Escenario analizado: FUGA"
-                : "Escenario analizado: OBSTRUCCIÓN";
+            "Falla detectada automáticamente: " +
+            diagnostico.falla;
 
         document.getElementById(
             "perdida-h4"
@@ -2471,7 +2544,9 @@ function analizarFallaH4() {
 
         document.getElementById(
             "interpretacion-h4"
-        ).textContent = interpretacion;
+        ).textContent =
+            interpretacion + " " +
+            diagnostico.confianza;
 
     } catch (error) {
 
@@ -2481,6 +2556,7 @@ function analizarFallaH4() {
 
     }
 }
+
 // Dibujar sensores dinámicamente en la tubería 2D.
 
 function dibujarSensoresTuberia(cantidad) {
