@@ -252,7 +252,31 @@
         step="1"
     >
 </div>
+<!-- CONFIGURACION DE OBSTRUCCION PARA H4 -->
+<div class="campo">
+    <label for="tipo-falla-h4">
+        Tipo de falla para H4
+    </label>
 
+    <select id="tipo-falla-h4">
+        <option value="fuga">Fuga</option>
+        <option value="obstruccion">Obstrucción</option>
+    </select>
+</div>
+
+<div class="campo">
+    <label for="porcentaje-obstruccion-h4">
+        Porcentaje de obstrucción (%)
+    </label>
+
+    <input
+        type="number"
+        id="porcentaje-obstruccion-h4"
+        value="30"
+        min="1"
+        max="80"
+        step="1">
+</div>
             </div>
 
             <button id="btn-simular" class="boton-principal">
