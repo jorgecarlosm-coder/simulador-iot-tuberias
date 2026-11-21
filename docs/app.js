@@ -1552,11 +1552,208 @@ document.addEventListener(
             }
         }
 
-        document.querySelectorAll("[data-experimento]").forEach(boton => {
-            boton.addEventListener("click", () => {
-                cargarResultadosExperimento(boton.dataset.experimento);
-            });
-        });
+  
+document.querySelectorAll("[data-experimento]").forEach(boton => {
+
+    boton.addEventListener("click", () => {
+
+        const codigo = boton.dataset.experimento;
+
+        if (codigo === "H1") {
+            mostrarLaboratorioH1();
+        } else {
+            cargarResultadosExperimento(codigo);
+        }
+
+    });
+
+});
+
+function mostrarLaboratorioH1() {
+
+    const contenedor = document.getElementById("detalle-experimento");
+
+    contenedor.innerHTML = `
+
+        <div class="laboratorio-h1">
+
+            <h3>H1 - Influencia del ruido en los sensores</h3>
+
+            <p>
+                En este experimento observarás cómo las variaciones
+                aleatorias afectan las mediciones de presión de un
+                sistema de monitoreo de tuberías.
+            </p>
+
+            <div class="panel-h1">
+
+                <h4>1. Configuración del experimento</h4>
+
+                <label for="nivel-ruido-h1">
+                    Selecciona el nivel de ruido:
+                </label>
+
+                <select id="nivel-ruido-h1">
+                    <option value="0">Sin ruido</option>
+                    <option value="5">Ruido bajo</option>
+                    <option value="12">Ruido medio</option>
+                    <option value="22">Ruido alto</option>
+                </select>
+
+                <button id="generar-h1">
+                    Generar mediciones
+                </button>
+
+            </div>
+
+            <div class="panel-h1">
+
+                <h4>2. Comparación de señales</h4>
+
+                <p>
+                    La línea azul representa la señal ideal.
+                    La línea roja representa la medición afectada
+                    por ruido.
+                </p>
+
+                <svg id="grafica-h1"
+                     viewBox="0 0 800 250"
+                     width="100%"
+                     role="img"
+                     aria-label="Comparación de señal ideal y señal con ruido">
+
+                    <line x1="40" y1="30" x2="40" y2="210"
+                          stroke="currentColor"/>
+
+                    <line x1="40" y1="210" x2="770" y2="210"
+                          stroke="currentColor"/>
+
+                    <line x1="40" y1="70" x2="770" y2="70"
+                          stroke="#999" stroke-dasharray="4 4"/>
+
+                    <line x1="40" y1="110" x2="770" y2="110"
+                          stroke="#999" stroke-dasharray="4 4"/>
+
+                    <line x1="40" y1="150" x2="770" y2="150"
+                          stroke="#999" stroke-dasharray="4 4"/>
+
+                    <text x="45" y="20" font-size="12" fill="currentColor">
+                        Presión (representación)
+                    </text>
+
+                    <text x="600" y="240" font-size="12" fill="currentColor">
+                        Tiempo →
+                    </text>
+
+                    <path id="senal-ideal-h1"
+                          fill="none"
+                          stroke="#2878d0"
+                          stroke-width="3"/>
+
+                    <path id="senal-ruidosa-h1"
+                          fill="none"
+                          stroke="#dc5555"
+                          stroke-width="2"/>
+
+                </svg>
+
+                <p>
+                    <span style="color:#2878d0">●</span>
+                    Señal ideal
+                    &nbsp;&nbsp;
+                    <span style="color:#dc5555">●</span>
+                    Señal con ruido
+                </p>
+
+            </div>
+
+            <div class="panel-h1">
+
+                <h4>3. Interpretación</h4>
+
+                <p id="interpretacion-h1">
+                    Selecciona un nivel de ruido y genera las mediciones.
+                </p>
+
+            </div>
+
+        </div>
+    `;
+
+    const selector = document.getElementById("nivel-ruido-h1");
+    const boton = document.getElementById("generar-h1");
+
+    function actualizarGraficaH1() {
+
+        const amplitud = Number(selector.value);
+
+        let puntosIdeales = [];
+        let puntosRuidosos = [];
+
+        for (let i = 0; i < 100; i++) {
+
+            const x = 40 + i * 7.3;
+
+            // Señal ideal: caída de presión a mitad del registro.
+            const ideal = i < 50 ? 105 : 65;
+
+            const ruido = (Math.random() - 0.5) * amplitud * 2;
+
+            const medida = ideal + ruido;
+
+            puntosIdeales.push(
+                `${i === 0 ? "M" : "L"} ${x} ${ideal}`
+            );
+
+            puntosRuidosos.push(
+                `${i === 0 ? "M" : "L"} ${x} ${medida}`
+            );
+        }
+
+        document.getElementById("senal-ideal-h1")
+            .setAttribute("d", puntosIdeales.join(" "));
+
+        document.getElementById("senal-ruidosa-h1")
+            .setAttribute("d", puntosRuidosos.join(" "));
+
+        const interpretacion = document.getElementById("interpretacion-h1");
+
+        if (amplitud === 0) {
+
+            interpretacion.textContent =
+                "Sin ruido, las mediciones siguen la señal ideal. " +
+                "El cambio de presión se observa claramente.";
+
+        } else if (amplitud === 5) {
+
+            interpretacion.textContent =
+                "Con ruido bajo aparecen pequeñas variaciones, " +
+                "pero el cambio de presión todavía se distingue.";
+
+        } else if (amplitud === 12) {
+
+            interpretacion.textContent =
+                "Con ruido medio las mediciones presentan fluctuaciones " +
+                "más visibles. La identificación del cambio puede ser " +
+                "más difícil.";
+
+        } else {
+
+            interpretacion.textContent =
+                "Con ruido alto las mediciones fluctúan considerablemente. " +
+                "El ruido puede dificultar la identificación de anomalías " +
+                "y provocar falsas alarmas.";
+
+        }
+    }
+
+    boton.addEventListener("click", actualizarGraficaH1);
+
+    selector.addEventListener("change", actualizarGraficaH1);
+
+    actualizarGraficaH1();
+}
+
 
 // Dibujar sensores dinámicamente en la tubería 2D.
 
