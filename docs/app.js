@@ -1675,6 +1675,41 @@ function mostrarLaboratorioH1() {
                     Selecciona un nivel de ruido y genera las mediciones.
                 </p>
 
+<div class="panel-h1">
+
+    <h4>4. Resultado de la detección</h4>
+
+    <p>
+        El sistema compara la presión promedio antes y después
+        del cambio de señal.
+    </p>
+
+    <p>
+        Presión promedio antes:
+        <strong id="presion-antes-h1">--</strong>
+    </p>
+
+    <p>
+        Presión promedio después:
+        <strong id="presion-despues-h1">--</strong>
+    </p>
+
+    <p>
+        Diferencia de presión:
+        <strong id="diferencia-h1">--</strong>
+    </p>
+
+    <p>
+        Estado de detección:
+        <strong id="deteccion-h1">Pendiente</strong>
+    </p>
+
+    <p id="explicacion-deteccion-h1">
+        Genera las mediciones para evaluar la anomalía.
+    </p>
+
+</div>
+
             </div>
 
         </div>
@@ -1683,76 +1718,101 @@ function mostrarLaboratorioH1() {
     const selector = document.getElementById("nivel-ruido-h1");
     const boton = document.getElementById("generar-h1");
 
-    function actualizarGraficaH1() {
 
-        const amplitud = Number(selector.value);
+function actualizarGraficaH1() {
 
-        let puntosIdeales = [];
-        let puntosRuidosos = [];
+    const amplitud = Number(selector.value);
 
-        for (let i = 0; i < 100; i++) {
+    let puntosIdeales = [];
+    let puntosRuidosos = [];
+    let mediciones = [];
 
-            const x = 40 + i * 7.3;
+    for (let i = 0; i < 100; i++) {
 
-            // Señal ideal: caída de presión a mitad del registro.
-            const ideal = i < 50 ? 105 : 65;
+        const x = 40 + i * 7.3;
 
-            const ruido = (Math.random() - 0.5) * amplitud * 2;
+        const ideal = i < 50 ? 105 : 65;
 
-            const medida = ideal + ruido;
+        const ruido = (Math.random() - 0.5) * amplitud * 2;
 
-            puntosIdeales.push(
-                `${i === 0 ? "M" : "L"} ${x} ${ideal}`
-            );
+        const medida = ideal + ruido;
 
-            puntosRuidosos.push(
-                `${i === 0 ? "M" : "L"} ${x} ${medida}`
-            );
-        }
+        mediciones.push(medida);
 
-        document.getElementById("senal-ideal-h1")
-            .setAttribute("d", puntosIdeales.join(" "));
+        puntosIdeales.push(
+            `${i === 0 ? "M" : "L"} ${x} ${ideal}`
+        );
 
-        document.getElementById("senal-ruidosa-h1")
-            .setAttribute("d", puntosRuidosos.join(" "));
-
-        const interpretacion = document.getElementById("interpretacion-h1");
-
-        if (amplitud === 0) {
-
-            interpretacion.textContent =
-                "Sin ruido, las mediciones siguen la señal ideal. " +
-                "El cambio de presión se observa claramente.";
-
-        } else if (amplitud === 5) {
-
-            interpretacion.textContent =
-                "Con ruido bajo aparecen pequeñas variaciones, " +
-                "pero el cambio de presión todavía se distingue.";
-
-        } else if (amplitud === 12) {
-
-            interpretacion.textContent =
-                "Con ruido medio las mediciones presentan fluctuaciones " +
-                "más visibles. La identificación del cambio puede ser " +
-                "más difícil.";
-
-        } else {
-
-            interpretacion.textContent =
-                "Con ruido alto las mediciones fluctúan considerablemente. " +
-                "El ruido puede dificultar la identificación de anomalías " +
-                "y provocar falsas alarmas.";
-
-        }
+        puntosRuidosos.push(
+            `${i === 0 ? "M" : "L"} ${x} ${medida}`
+        );
     }
 
-    boton.addEventListener("click", actualizarGraficaH1);
+    document.getElementById("senal-ideal-h1")
+        .setAttribute("d", puntosIdeales.join(" "));
 
-    selector.addEventListener("change", actualizarGraficaH1);
+    document.getElementById("senal-ruidosa-h1")
+        .setAttribute("d", puntosRuidosos.join(" "));
 
-    actualizarGraficaH1();
+    // Promedios de presión antes y después del cambio
+    const antes = mediciones.slice(35, 45);
+    const despues = mediciones.slice(55, 65);
+
+    const promedioAntes =
+        antes.reduce((suma, valor) => suma + valor, 0) / antes.length;
+
+    const promedioDespues =
+        despues.reduce((suma, valor) => suma + valor, 0) / despues.length;
+
+    const diferencia = promedioAntes - promedioDespues;
+
+    // Detector sencillo por umbral
+    const umbral = 20;
+    const detectada = diferencia >= umbral;
+
+    document.getElementById("presion-antes-h1").textContent =
+        promedioAntes.toFixed(2);
+
+    document.getElementById("presion-despues-h1").textContent =
+        promedioDespues.toFixed(2);
+
+    document.getElementById("diferencia-h1").textContent =
+        diferencia.toFixed(2);
+
+    document.getElementById("deteccion-h1").textContent =
+        detectada ? "Anomalía detectada" : "Anomalía no detectada";
+
+    document.getElementById("explicacion-deteccion-h1").textContent =
+        detectada
+        ? "La diferencia de presión superó el umbral establecido. El sistema identificó un cambio significativo."
+        : "La diferencia de presión no alcanzó el umbral. El sistema no identificó la anomalía.";
+
+    const interpretacion =
+        document.getElementById("interpretacion-h1");
+
+    if (amplitud === 0) {
+
+        interpretacion.textContent =
+            "Sin ruido, las mediciones siguen la señal ideal. El cambio de presión se observa claramente.";
+
+    } else if (amplitud === 5) {
+
+        interpretacion.textContent =
+            "Con ruido bajo aparecen pequeñas variaciones, pero el cambio de presión todavía se distingue.";
+
+    } else if (amplitud === 12) {
+
+        interpretacion.textContent =
+            "Con ruido medio las mediciones presentan fluctuaciones más visibles.";
+
+    } else {
+
+        interpretacion.textContent =
+            "Con ruido alto las mediciones fluctúan considerablemente y pueden dificultar la detección.";
+
+    }
 }
+
 
 
 // Dibujar sensores dinámicamente en la tubería 2D.
