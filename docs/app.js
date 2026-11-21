@@ -1890,7 +1890,28 @@ function mostrarLaboratorioH2() {
 
                     <line x1="50" y1="220" x2="750" y2="220"
                           stroke="currentColor"/>
+<!-- Referencias del eje de tiempo -->
+<g stroke="#999" stroke-dasharray="3 4" opacity="0.5">
 
+    <line x1="166.7" y1="30" x2="166.7" y2="220"/>
+    <line x1="283.3" y1="30" x2="283.3" y2="220"/>
+    <line x1="400" y1="30" x2="400" y2="220"/>
+    <line x1="516.7" y1="30" x2="516.7" y2="220"/>
+    <line x1="633.3" y1="30" x2="633.3" y2="220"/>
+
+</g>
+
+<g fill="currentColor" font-size="11" text-anchor="middle">
+
+    <text x="50" y="238">0</text>
+    <text x="166.7" y="238">5</text>
+    <text x="283.3" y="238">10</text>
+    <text x="400" y="238">15</text>
+    <text x="516.7" y="238">20</text>
+    <text x="633.3" y="238">25</text>
+    <text x="750" y="238">30</text>
+
+</g>
                     <path id="senal-ideal-h2"
                           fill="none"
                           stroke="#2878d0"
