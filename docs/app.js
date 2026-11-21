@@ -1832,6 +1832,224 @@ actualizarGraficaH1();
 
 }
 
+function mostrarLaboratorioH2() {
+
+    const contenedor = document.getElementById("detalle-experimento");
+
+    contenedor.innerHTML = `
+        <div class="laboratorio-h2">
+
+            <h3>H2 - Influencia de la frecuencia de muestreo</h3>
+
+            <p>
+                En este experimento observarás cómo el intervalo
+                entre mediciones afecta el tiempo que tarda el
+                sistema en detectar una anomalía.
+            </p>
+
+            <div class="panel-h1">
+
+                <h4>1. Configuración del experimento</h4>
+
+                <label for="intervalo-h2">
+                    Intervalo de muestreo:
+                </label>
+
+                <select id="intervalo-h2">
+                    <option value="1">1 segundo</option>
+                    <option value="2">2 segundos</option>
+                    <option value="5">5 segundos</option>
+                    <option value="10">10 segundos</option>
+                    <option value="20">20 segundos</option>
+                </select>
+
+                <button id="generar-h2">
+                    Generar mediciones
+                </button>
+
+            </div>
+
+            <div class="panel-h1">
+
+                <h4>2. Señal y mediciones del sensor</h4>
+
+                <p>
+                    La línea azul representa la señal continua.
+                    Los puntos rojos representan las mediciones
+                    tomadas por el sensor.
+                </p>
+
+                <svg id="grafica-h2"
+                     viewBox="0 0 800 270"
+                     width="100%"
+                     role="img"
+                     aria-label="Señal continua y muestras del sensor">
+
+                    <line x1="50" y1="30" x2="50" y2="220"
+                          stroke="currentColor"/>
+
+                    <line x1="50" y1="220" x2="750" y2="220"
+                          stroke="currentColor"/>
+
+                    <path id="senal-ideal-h2"
+                          fill="none"
+                          stroke="#2878d0"
+                          stroke-width="3"/>
+
+                    <g id="puntos-h2"></g>
+
+                    <text x="55" y="20" fill="currentColor">
+                        Presión (representación)
+                    </text>
+
+                    <text x="690" y="250" fill="currentColor">
+                        Tiempo (s)
+                    </text>
+
+                </svg>
+
+                <p>
+                    <span style="color:#2878d0">●</span>
+                    Señal continua
+                    &nbsp;&nbsp;
+                    <span style="color:#dc5555">●</span>
+                    Mediciones del sensor
+                </p>
+
+            </div>
+
+            <div class="panel-h1">
+
+                <h4>3. Resultado de la detección</h4>
+
+                <p>
+                    Intervalo seleccionado:
+                    <strong id="intervalo-resultado-h2">--</strong>
+                </p>
+
+                <p>
+                    Cantidad de mediciones:
+                    <strong id="cantidad-muestras-h2">--</strong>
+                </p>
+
+                <p>
+                    Tiempo de detección:
+                    <strong id="tiempo-deteccion-h2">--</strong>
+                </p>
+
+                <p>
+                    Retardo de detección:
+                    <strong id="retardo-h2">--</strong>
+                </p>
+
+            </div>
+
+            <div class="panel-h1">
+
+                <h4>4. Interpretación</h4>
+
+                <p id="interpretacion-h2">
+                    Selecciona un intervalo de muestreo.
+                </p>
+
+            </div>
+
+        </div>
+    `;
+
+    const selector = document.getElementById("intervalo-h2");
+    const boton = document.getElementById("generar-h2");
+
+    function actualizarGraficaH2() {
+
+        const intervalo = Number(selector.value);
+
+        const inicio = 0;
+        const fin = 30;
+        const instanteAnomalia = 11;
+
+        const x = tiempo => 50 + tiempo * (700 / 30);
+        const y = presion => presion === 100 ? 170 : 80;
+
+        const trayectoria =
+            "M " + x(0) + " " + y(100) +
+            " L " + x(instanteAnomalia) + " " + y(100) +
+            " L " + x(instanteAnomalia) + " " + y(70) +
+            " L " + x(fin) + " " + y(70);
+
+        document.getElementById("senal-ideal-h2")
+            .setAttribute("d", trayectoria);
+
+        const grupo = document.getElementById("puntos-h2");
+        grupo.innerHTML = "";
+
+        let muestras = [];
+        let tiempoDeteccion = null;
+
+        for (let t = inicio; t <= fin; t += intervalo) {
+
+            const presion = t < instanteAnomalia ? 100 : 70;
+
+            muestras.push(t);
+
+            if (tiempoDeteccion === null && t >= instanteAnomalia) {
+                tiempoDeteccion = t;
+            }
+
+            const punto = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "circle"
+            );
+
+            punto.setAttribute("cx", x(t));
+            punto.setAttribute("cy", y(presion));
+            punto.setAttribute("r", "6");
+            punto.setAttribute("fill", "#dc5555");
+
+            grupo.appendChild(punto);
+        }
+
+        const retardo = tiempoDeteccion - instanteAnomalia;
+
+        document.getElementById("intervalo-resultado-h2").textContent =
+            intervalo + " segundos";
+
+        document.getElementById("cantidad-muestras-h2").textContent =
+            muestras.length;
+
+        document.getElementById("tiempo-deteccion-h2").textContent =
+            tiempoDeteccion + " segundos";
+
+        document.getElementById("retardo-h2").textContent =
+            retardo + " segundos";
+
+        const interpretacion = document.getElementById("interpretacion-h2");
+
+        if (intervalo <= 2) {
+
+            interpretacion.textContent =
+                "El sensor toma mediciones frecuentes. Esto permite detectar la anomalía con poco retardo.";
+
+        } else if (intervalo <= 5) {
+
+            interpretacion.textContent =
+                "El sensor realiza menos mediciones. El retardo de detección aumenta.";
+
+        } else {
+
+            interpretacion.textContent =
+                "El intervalo de muestreo es amplio. El sensor puede tardar más en registrar la anomalía.";
+
+        }
+    }
+
+    boton.addEventListener("click", actualizarGraficaH2);
+
+    selector.addEventListener("change", actualizarGraficaH2);
+
+    actualizarGraficaH2();
+}
+
 // Dibujar sensores dinámicamente en la tubería 2D.
 
 function dibujarSensoresTuberia(cantidad) {
