@@ -1560,9 +1560,17 @@ document.querySelectorAll("[data-experimento]").forEach(boton => {
         const codigo = boton.dataset.experimento;
 
         if (codigo === "H1") {
+
             mostrarLaboratorioH1();
+
+        } else if (codigo === "H2") {
+
+            mostrarLaboratorioH2();
+
         } else {
+
             cargarResultadosExperimento(codigo);
+
         }
 
     });
